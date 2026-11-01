@@ -1,0 +1,6 @@
+{
+  "name": "SolarSphere - Cotizador Solar & Calculadora CFE",
+  "description": "Calculadora interactiva de paneles solares y recibos CFE con diseño glassmorphism, generación de cotizaciones en PDF y enlace directo a WhatsApp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

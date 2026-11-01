@@ -1,0 +1,2351 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <title>SolarSphere | Calculadora de Ahorro Solar & Cotizador CFE</title>
+  
+  <!-- Meta etiquetas para SEO y Redes Sociales -->
+  <meta name="description" content="Calcula tu ahorro con paneles solares para tu recibo de luz CFE. Genera tu propuesta técnica formal en PDF y cotiza directamente por WhatsApp con SolarSphere." />
+  <meta property="og:title" content="SolarSphere | Cotizador de Paneles Solares & Calculadora CFE" />
+  <meta property="og:description" content="Ahorra hasta un 98% en tu recibo de luz. Genera tu cotización en PDF y envíala a nuestro asesor en WhatsApp." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#101415" />
+
+  <!-- Google Fonts: Inter y Outfit para tipografía moderna, limpia y de máxima legibilidad -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Bootstrap 5.3.3 CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous" />
+
+  <!-- FontAwesome 6.5.2 CSS -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Librerías para Generación de PDF profesional (jsPDF y jsPDF AutoTable) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  
+  <!-- Canvas Confetti para celebración visual al calcular cotización -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- ==========================================================================
+       ESTILOS CSS: SISTEMA DE DISEÑO GLASSMORPHISM, CONTRASTE ÓPTIMO Y RESPONSIVE
+       ========================================================================== -->
+  <style>
+    /* ==========================================================================
+       1. VARIABLES CSS: COLORES, NEÓN ATENUADO UN 15% Y CONTRASTE WCAG AAA
+       ========================================================================== */
+    :root {
+      /* Colores Principales Eco-Tech */
+      --color-primary: #9ee939;          /* Verde neón brillante para acciones clave */
+      --color-primary-dark: #84cc16;     /* Verde acento complementario */
+      
+      /* Efectos de Neón REDUCIDOS un 15% para una visualización más elegante y descansada */
+      --color-primary-glow: rgba(158, 233, 57, 0.18); /* Atenuado de 0.28 a 0.18 (-35%) */
+      --shadow-neon: 0 0 12px rgba(158, 233, 57, 0.22); /* Atenuado de 20px 0.35 a 12px 0.22 */
+      
+      /* Fondos Inmersivos y Glassmorphism */
+      --color-surface-dark: #101415;     /* Fondo base ultra oscuro para OLED */
+      --color-surface-container: #191d1f;
+      --color-surface-glass: rgba(16, 20, 21, 0.82); /* Mayor opacidad para mejorar contraste de letras */
+      --color-surface-card: rgba(22, 26, 28, 0.80);
+      --color-surface-card-hover: rgba(30, 35, 38, 0.90);
+      --color-border-glass: rgba(255, 255, 255, 0.18); /* Borde más nítido y visible */
+      --color-border-focus: rgba(158, 233, 57, 0.50);  /* Reducido 15% */
+      
+      /* TIPOGRAFÍA Y TEXTOS DE ALTO CONTRASTE (CORRECCIÓN DE LETRAS NO VISIBLES) */
+      --color-text-main: #ffffff;        /* Blanco puro de alto contraste */
+      --color-text-secondary: #e2e8f0;   /* Gris blanco brillante legible en cualquier fondo */
+      --color-text-muted: #cbd5e1;       /* Gris claro legible (reemplaza grises oscuros invisibles) */
+      --color-text-accent: #9ee939;      /* Resaltado verde solar */
+      
+      /* Sombras Suaves */
+      --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.50);
+      --blur-strength: 18px;             /* Fuerza de desenfoque de cristal */
+      
+      /* WhatsApp Brand Color */
+      --color-whatsapp: #25D366;
+      --color-whatsapp-dark: #1ea952;
+    }
+
+    /* ==========================================================================
+       2. REGLAS BASE DEL CUERPO Y FONDO INMERSIVO DE NATURALEZA Y MONTAÑAS
+       ========================================================================== */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      color: var(--color-text-main);
+      background-color: var(--color-surface-dark);
+      /* Fondo fotográfico de alta resolución de montañas verdes con overlay de contraste reforzado */
+      background-image: 
+        radial-gradient(circle at 15% 20%, rgba(158, 233, 57, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(132, 204, 22, 0.06) 0%, transparent 40%),
+        linear-gradient(180deg, rgba(16, 20, 21, 0.90) 0%, rgba(16, 20, 21, 0.84) 50%, rgba(10, 13, 14, 0.96) 100%),
+        url('https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=2000&q=80');
+      background-attachment: fixed;
+      background-position: center center;
+      background-repeat: no-repeat;
+      background-size: cover;
+      min-height: 100vh;
+      overflow-x: hidden;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4, h5, .brand-font {
+      font-family: 'Outfit', 'Inter', sans-serif;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #ffffff;
+    }
+
+    /* ==========================================================================
+       3. CORRECCIÓN GLOBAL DE VISIBILIDAD DE LETRAS (TEXT CONTRAST FIX)
+       ========================================================================== */
+    /* Aseguramos que ninguna clase apague el texto haciéndolo invisible */
+    .text-muted, small.text-muted, p.text-muted {
+      color: var(--color-text-muted) !important;
+    }
+
+    .text-white-50 {
+      color: #e2e8f0 !important; /* Ahora es casi blanco, 100% visible en modo oscuro */
+    }
+
+    .opacity-90 {
+      opacity: 0.96 !important;
+    }
+
+    /* ==========================================================================
+       4. ANIMACIÓN CSS DE GIRO CONTINUO (INFINITE SPIN) PARA EL LOGOTIPO
+       ========================================================================== */
+    @keyframes infinite-spin {
+      0% {
+        transform: rotate(0deg);
+      }
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* Clase con giro infinito constante de 10 segundos */
+    .logo-spin-infinite {
+      animation: infinite-spin 10s linear infinite;
+      display: inline-block;
+      transform-origin: center center;
+      transition: filter 0.3s ease;
+    }
+
+    /* Al pasar el cursor, el logotipo acelera suavemente */
+    .logo-spin-container:hover .logo-spin-infinite {
+      animation-duration: 3.5s;
+      filter: drop-shadow(0 0 8px rgba(158, 233, 57, 0.55));
+    }
+
+    /* Brillo pulsante continuo ATENUADO un 15% */
+    @keyframes neon-pulse-soft {
+      0%, 100% {
+        box-shadow: 0 0 10px rgba(158, 233, 57, 0.18);
+      }
+      50% {
+        box-shadow: 0 0 18px rgba(158, 233, 57, 0.32);
+      }
+    }
+
+    .pulse-glow {
+      animation: neon-pulse-soft 3.5s infinite ease-in-out;
+    }
+
+    /* ==========================================================================
+       5. COMPONENTES Y TARJETAS CON EFECTO CRISTAL (GLASSMORPHISM)
+       ========================================================================== */
+    .glass-navbar {
+      background: rgba(16, 20, 21, 0.88) !important;
+      backdrop-filter: blur(var(--blur-strength));
+      -webkit-backdrop-filter: blur(var(--blur-strength));
+      border-bottom: 1px solid var(--color-border-glass);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    }
+
+    .glass-card {
+      background: var(--color-surface-card);
+      backdrop-filter: blur(var(--blur-strength));
+      -webkit-backdrop-filter: blur(var(--blur-strength));
+      border: 1px solid var(--color-border-glass);
+      border-radius: 1.25rem;
+      box-shadow: var(--shadow-glass);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Reflejo superior sutil de cristal en tarjetas */
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+      pointer-events: none;
+    }
+
+    .glass-card:hover {
+      border-color: rgba(158, 233, 57, 0.35);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55), 0 0 15px rgba(158, 233, 57, 0.12);
+    }
+
+    .glass-pill {
+      background: rgba(158, 233, 57, 0.12);
+      border: 1px solid rgba(158, 233, 57, 0.35);
+      color: #bbf758; /* Texto verde más claro y legible */
+      border-radius: 50rem;
+      padding: 0.35rem 0.95rem;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* ==========================================================================
+       6. INPUTS Y SELECTORES: AUTO-CLEAR AL CLIC, PLACEHOLDERS VISIBLES Y SELECTS
+       ========================================================================== */
+    .form-control-glass, .form-select-glass {
+      background-color: rgba(14, 18, 20, 0.85) !important;
+      border: 1px solid rgba(255, 255, 255, 0.22) !important;
+      color: #ffffff !important;
+      border-radius: 0.75rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.95rem;
+      backdrop-filter: blur(10px);
+      transition: all 0.25s ease;
+    }
+
+    .form-control-glass:focus, .form-select-glass:focus {
+      background-color: rgba(14, 18, 20, 0.95) !important;
+      border-color: var(--color-primary) !important;
+      box-shadow: 0 0 0 0.25rem rgba(158, 233, 57, 0.25) !important;
+      outline: none;
+      color: #ffffff !important;
+    }
+
+    /* Placeholders en cursiva, suaves pero 100% legibles como ejemplos */
+    .form-control-glass::placeholder {
+      color: rgba(226, 232, 240, 0.55) !important;
+      font-style: italic;
+    }
+
+    /* CORRECCIÓN CRUCIAL PARA SELECT OPTIONS: Fondo oscuro sólido y letras blancas */
+    .form-select-glass option {
+      background-color: #171b1e !important;
+      color: #ffffff !important;
+      padding: 10px;
+    }
+
+    .form-label-glass {
+      font-size: 0.86rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: #ffffff !important; /* Letras de etiquetas 100% legibles en blanco brillante */
+      margin-bottom: 0.45rem;
+      display: flex;
+      align-items: center;
+    }
+
+    /* Slider de rango estilizado */
+    .form-range-solar {
+      accent-color: var(--color-primary);
+      height: 8px;
+    }
+
+    /* ==========================================================================
+       7. BOTONES PRIMARIOS, SECUNDARIOS Y DE WHATSAPP (NEÓN REDUCIDO 15%)
+       ========================================================================== */
+    .btn-solar-primary {
+      background: linear-gradient(135deg, #9ee939 0%, #84cc16 100%);
+      color: #0b1500 !important;
+      font-weight: 700;
+      border: none;
+      border-radius: 0.85rem;
+      padding: 0.85rem 1.6rem;
+      letter-spacing: -0.01em;
+      box-shadow: 0 4px 14px rgba(158, 233, 57, 0.25); /* Atenuado 15% */
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      min-height: 48px; /* Touch target móvil amigable */
+    }
+
+    .btn-solar-primary:hover {
+      background: linear-gradient(135deg, #a8f041 0%, #8bd419 100%);
+      color: #050b00 !important;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(158, 233, 57, 0.38); /* Atenuado 15% */
+    }
+
+    .btn-solar-secondary {
+      background: rgba(255, 255, 255, 0.10);
+      color: #ffffff !important;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: 0.85rem;
+      padding: 0.85rem 1.4rem;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      min-height: 48px;
+    }
+
+    .btn-solar-secondary:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #ffffff !important;
+      border-color: rgba(255, 255, 255, 0.45);
+      transform: translateY(-2px);
+    }
+
+    .btn-whatsapp-direct {
+      background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
+      color: #ffffff !important;
+      font-weight: 700;
+      border: none;
+      border-radius: 0.85rem;
+      padding: 0.85rem 1.5rem;
+      box-shadow: 0 4px 15px rgba(37, 211, 102, 0.30);
+      transition: all 0.25s ease;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      min-height: 48px;
+    }
+
+    .btn-whatsapp-direct:hover {
+      background: linear-gradient(135deg, #29e770 0%, #20b859 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.45);
+    }
+
+    /* ==========================================================================
+       8. ÁREA DRAG & DROP PARA EL RECIBO DE LUZ DE CFE CON ESCÁNER INTELIGENTE
+       ========================================================================== */
+    .dropzone-recibo {
+      border: 2px dashed rgba(158, 233, 57, 0.45);
+      border-radius: 1rem;
+      background: rgba(16, 20, 21, 0.60);
+      padding: 1.75rem 1.25rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .dropzone-recibo:hover, .dropzone-recibo.dragover {
+      border-color: var(--color-primary);
+      background: rgba(158, 233, 57, 0.08);
+      transform: scale(1.01);
+    }
+
+    /* Tarjeta de extracción de datos del recibo CFE */
+    .recibo-detected-card {
+      background: rgba(14, 28, 16, 0.90);
+      border: 1px solid rgba(158, 233, 57, 0.40);
+      border-radius: 0.85rem;
+      padding: 1rem;
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ==========================================================================
+       9. PANEL LATERAL OFFCANVAS DE VENTAS (WHATSAPP ESTRICTO)
+       ========================================================================== */
+    .offcanvas-glass {
+      background: rgba(16, 20, 21, 0.94) !important;
+      backdrop-filter: blur(24px) !important;
+      -webkit-backdrop-filter: blur(24px) !important;
+      border-left: 1px solid var(--color-border-glass) !important;
+      color: var(--color-text-main) !important;
+      box-shadow: -10px 0 35px rgba(0, 0, 0, 0.6);
+      width: 440px !important;
+      max-width: 95vw !important;
+    }
+
+    .offcanvas-glass .btn-close {
+      filter: invert(1) grayscale(100%) brightness(200%);
+    }
+
+    /* Botón flotante permanente para acceso rápido al WhatsApp */
+    .floating-whatsapp-btn {
+      position: fixed;
+      bottom: 25px;
+      right: 25px;
+      z-index: 1040;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #25D366 0%, #1ea952 100%);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 30px;
+      box-shadow: 0 6px 20px rgba(37, 211, 102, 0.35); /* Atenuado 15% */
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 2px solid rgba(255, 255, 255, 0.4);
+      cursor: pointer;
+    }
+
+    .floating-whatsapp-btn:hover {
+      transform: scale(1.10) rotate(6deg);
+      box-shadow: 0 10px 25px rgba(37, 211, 102, 0.55);
+      color: #ffffff;
+    }
+
+    /* Insignia de notificación en botón flotante */
+    .floating-badge {
+      position: absolute;
+      top: -3px;
+      right: -3px;
+      background: #ef4444;
+      color: white;
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid #101415;
+    }
+
+    /* Modal Glassmorphism */
+    .modal-glass .modal-content {
+      background: rgba(16, 20, 21, 0.95);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      border: 1px solid var(--color-border-glass);
+      border-radius: 1.5rem;
+      color: var(--color-text-main);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.75);
+    }
+
+    .modal-glass .modal-header,
+    .modal-glass .modal-footer {
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    /* Barras de progreso de comparación */
+    .progress-glass {
+      background: rgba(255, 255, 255, 0.12);
+      height: 12px;
+      border-radius: 1rem;
+      overflow: hidden;
+    }
+
+    /* Scrollbar estilizada */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: rgba(16, 20, 21, 0.6);
+    }
+    ::-webkit-scrollbar-thumb {
+      background: rgba(158, 233, 57, 0.35);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(158, 233, 57, 0.65);
+    }
+
+    /* ==========================================================================
+       10. REGLAS ESPECÍFICAS DE OPTIMIZACIÓN RESPONSIVA (MÓVIL, TABLET Y PC)
+       ========================================================================== */
+    /* Móviles pequeños y medianos (320px - 576px) */
+    @media (max-width: 576px) {
+      body {
+        font-size: 14px;
+      }
+
+      /* Títulos fluidos adaptados para no desbordar en celulares */
+      h1.display-4 {
+        font-size: 1.85rem !important;
+        line-height: 1.25 !important;
+      }
+      h2.display-5 {
+        font-size: 1.65rem !important;
+      }
+      h2.display-6 {
+        font-size: 1.45rem !important;
+      }
+
+      /* Padding reducido en tarjetas para maximizar espacio útil */
+      .glass-card {
+        padding: 1.25rem !important;
+        border-radius: 1rem;
+      }
+
+      /* Botones ocupan ancho completo en pantallas chicas para facilidad táctil */
+      .btn-solar-primary, .btn-solar-secondary, .btn-whatsapp-direct {
+        width: 100%;
+        margin-bottom: 0.5rem;
+      }
+
+      /* Panel Lateral Offcanvas ocupa toda la pantalla en móvil */
+      .offcanvas-glass {
+        width: 100vw !important;
+        max-width: 100vw !important;
+      }
+
+      /* Botón flotante más compacto en móvil para no tapar contenido */
+      .floating-whatsapp-btn {
+        width: 52px;
+        height: 52px;
+        bottom: 16px;
+        right: 16px;
+        font-size: 26px;
+      }
+
+      /* Dropzone más compacto */
+      .dropzone-recibo {
+        padding: 1.25rem 0.75rem;
+      }
+
+      /* Métricas rápidas del hero en vertical o rejilla 1 col */
+      .hero-metrics-col {
+        margin-bottom: 0.5rem;
+      }
+    }
+
+    /* Tablets y iPads (577px - 991px) */
+    @media (min-width: 577px) and (max-width: 991px) {
+      .glass-card {
+        padding: 1.75rem !important;
+      }
+      .offcanvas-glass {
+        width: 390px !important;
+      }
+      h1.display-4 {
+        font-size: 2.4rem !important;
+      }
+    }
+
+    /* Computadoras y Laptops (992px en adelante) */
+    @media (min-width: 992px) {
+      .glass-card {
+        padding: 2.5rem !important;
+      }
+      .offcanvas-glass {
+        width: 440px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ==========================================================================
+       SECCIÓN 1: BARRA DE NAVEGACIÓN PRINCIPAL (NAVBAR GLASSMORPHISM)
+       ========================================================================== -->
+  <nav class="navbar navbar-expand-lg sticky-top glass-navbar py-2 py-lg-3">
+    <div class="container">
+      
+      <!-- LOGOTIPO CON ANIMACIÓN CSS CONTINUA DE GIRO (INFINITE SPIN) -->
+      <a class="navbar-brand d-flex align-items-center gap-2 gap-sm-3 text-white logo-spin-container text-decoration-none" href="#">
+        <!-- Contenedor del icono con giro infinito continuo -->
+        <div class="position-relative d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+          <!-- SVG personalizado de vórtice y sol fotovoltaico con giro infinito -->
+          <svg class="logo-spin-infinite" width="40" height="40" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="16" fill="#9ee939" fill-opacity="0.9" />
+            <circle cx="50" cy="50" r="28" stroke="#9ee939" stroke-width="3" stroke-dasharray="6 4" stroke-opacity="0.6" />
+            <!-- Rayos y aspas solares que rotan continuamente -->
+            <path d="M50 8V22M50 78V92M8 50H22M78 50H92M20.3 20.3L30.2 30.2M69.8 69.8L79.7 79.7M20.3 79.7L30.2 69.8M69.8 30.2L79.7 20.3" 
+                  stroke="#9ee939" stroke-width="4" stroke-linecap="round" />
+            <circle cx="50" cy="50" r="8" fill="#101415" />
+          </svg>
+          <!-- Punto de núcleo central fijo para contraste visual -->
+          <span class="position-absolute" style="width: 8px; height: 8px; background-color: #9ee939; border-radius: 50%; box-shadow: 0 0 6px #9ee939;"></span>
+        </div>
+        
+        <!-- Nombre de Marca y Subtítulo con alto contraste -->
+        <div>
+          <span class="fs-4 brand-font text-white d-block lh-1">
+            Solar<span style="color: var(--color-primary);">Sphere</span>
+          </span>
+          <small class="text-uppercase fw-semibold" style="font-size: 0.68rem; letter-spacing: 0.12em; color: var(--color-text-muted);">
+            Energía Solar Inteligente
+          </small>
+        </div>
+      </a>
+
+      <!-- Botón Hamburguesa Móvil accesible -->
+      <button class="navbar-toggler border-0 text-white p-2" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSolar" aria-controls="navbarSolar" aria-expanded="false" aria-label="Abrir menú de navegación">
+        <i class="fa-solid fa-bars fs-3 text-white"></i>
+      </button>
+
+      <!-- Enlaces de Navegación y Botón de Ventas WhatsApp -->
+      <div class="collapse navbar-collapse" id="navbarSolar">
+        <ul class="navbar-nav mx-auto mb-3 mb-lg-0 gap-lg-3 mt-3 mt-lg-0">
+          <li class="nav-item">
+            <a class="nav-link text-white fw-semibold px-2 active" href="#inicio">
+              <i class="fa-solid fa-house me-1 text-primary"></i> Inicio
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white fw-semibold px-2" href="#calculadora">
+              <i class="fa-solid fa-calculator me-1 text-primary"></i> Calculadora CFE
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white fw-semibold px-2" href="#beneficios">
+              <i class="fa-solid fa-bolt me-1 text-primary"></i> Beneficios
+            </a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link text-white fw-semibold px-2" href="#proceso">
+              <i class="fa-solid fa-list-check me-1 text-primary"></i> Pasos
+            </a>
+          </li>
+        </ul>
+
+        <!-- BOTÓN DISPARADOR DEL PANEL LATERAL DE VENTAS WHATSAPP (+52 960 107 6133) -->
+        <div class="d-flex align-items-center">
+          <button class="btn btn-whatsapp-direct w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#salesOffcanvas" aria-controls="salesOffcanvas">
+            <i class="fa-brands fa-whatsapp fs-5"></i>
+            <span>Ventas WhatsApp</span>
+            <span class="badge bg-white text-dark rounded-pill px-2 py-1 ms-1" style="font-size: 0.72rem;">
+              En Línea
+            </span>
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </nav>
+
+  <!-- ==========================================================================
+       SECCIÓN 2: HERO BANNER (PRESENTACIÓN DE ALTO IMPACTO CON FONDO NATURAL)
+       ========================================================================== -->
+  <section id="inicio" class="py-4 py-lg-5 position-relative">
+    <div class="container py-lg-3">
+      <div class="row align-items-center g-4 g-lg-5">
+        
+        <!-- Columna de Texto y Llamado a la Acción -->
+        <div class="col-lg-7 text-center text-lg-start">
+          <div class="d-inline-flex align-items-center glass-pill mb-3">
+            <span class="spinner-grow spinner-grow-sm text-success" role="status"></span>
+            <span>Tarifas CFE 2026 en Aumento • Ahorra hasta 98%</span>
+          </div>
+
+          <h1 class="display-4 fw-bold text-white mb-3 lh-sm">
+            Convierte el Sol en Ahorro: <br class="d-none d-sm-block">
+            <span style="color: var(--color-primary); text-shadow: 0 0 12px rgba(158, 233, 57, 0.22);">
+              Reduce hasta un 98%
+            </span> tu Recibo de CFE
+          </h1>
+
+          <p class="lead text-white opacity-90 mb-4 mx-auto mx-lg-0" style="max-width: 600px; font-size: 1.12rem; line-height: 1.7;">
+            Diseñado para hogares, comercios e industrias en México. Ingresa tus datos o adjunta tu recibo de CFE: nuestro sistema <strong class="text-white">detecta tu tarifa automáticamente</strong> y redacta tu cotización ejecutiva en PDF.
+          </p>
+
+          <!-- Botones de Acción Directa -->
+          <div class="d-flex flex-column flex-sm-row gap-3 mb-4 justify-content-center justify-content-lg-start">
+            <a href="#calculadora" class="btn btn-solar-primary btn-lg">
+              <i class="fa-solid fa-calculator"></i>
+              <span>Calcular Mi Ahorro Ahora</span>
+            </a>
+            
+            <button type="button" class="btn btn-solar-secondary btn-lg" data-bs-toggle="offcanvas" data-bs-target="#salesOffcanvas">
+              <i class="fa-brands fa-whatsapp text-success fs-5"></i>
+              <span>Asesor Directo (+52 960 107 6133)</span>
+            </button>
+          </div>
+
+          <!-- Métricas de Confianza Rápidas (Adaptadas para móvil/tablet/PC) -->
+          <div class="row g-2 g-sm-3 pt-3 border-top border-secondary border-opacity-25 text-start">
+            <div class="col-4 hero-metrics-col">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-solar-panel fs-4 text-warning"></i>
+                <div>
+                  <h4 class="mb-0 text-white fw-bold fs-6 fs-sm-5">25 Años</h4>
+                  <small class="text-white fw-medium" style="font-size: 0.72rem;">Garantía Módulos</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 hero-metrics-col">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-chart-line fs-4 text-success"></i>
+                <div>
+                  <h4 class="mb-0 text-white fw-bold fs-6 fs-sm-5">2.5 Años</h4>
+                  <small class="text-white fw-medium" style="font-size: 0.72rem;">Retorno Inversión</small>
+                </div>
+              </div>
+            </div>
+            <div class="col-4 hero-metrics-col">
+              <div class="d-flex align-items-center gap-2">
+                <i class="fa-solid fa-certificate fs-4 text-info"></i>
+                <div>
+                  <h4 class="mb-0 text-white fw-bold fs-6 fs-sm-5">100% CFE</h4>
+                  <small class="text-white fw-medium" style="font-size: 0.72rem;">Interconexión Legal</small>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Columna de Tarjeta Resumen Visual con Efecto Cristal -->
+        <div class="col-lg-5">
+          <div class="glass-card p-4 pulse-glow">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="badge bg-success bg-opacity-25 text-success border border-success border-opacity-50 px-3 py-2 rounded-pill fw-bold">
+                <i class="fa-solid fa-bolt me-1"></i> Sistema Interconectado CFE
+              </span>
+              <span class="text-white fw-semibold small"><i class="fa-regular fa-clock me-1 text-primary"></i> Cotización 24/7</span>
+            </div>
+
+            <div class="text-center my-3 py-2">
+              <p class="text-white fw-bold text-uppercase mb-1" style="font-size: 0.82rem; letter-spacing: 0.08em;">Ejemplo de Ahorro Residencial DAC</p>
+              <div class="d-flex align-items-center justify-content-center gap-3">
+                <div>
+                  <span class="text-decoration-line-through text-danger fs-5 fw-bold">$6,800</span>
+                  <small class="d-block text-white fw-semibold" style="font-size: 0.72rem;">CFE Actual</small>
+                </div>
+                <i class="fa-solid fa-arrow-right fs-4" style="color: var(--color-primary);"></i>
+                <div>
+                  <span class="display-6 fw-bold text-white">$120</span>
+                  <small class="d-block text-success fw-bold" style="font-size: 0.75rem;">Pago Mínimo Bimestral</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="p-3 rounded-3 mb-4" style="background: rgba(14, 18, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.15);">
+              <div class="d-flex justify-content-between text-white small mb-1">
+                <span>Ahorro proyectado anual:</span>
+                <span class="text-white fw-bold">$39,800 MXN</span>
+              </div>
+              <div class="d-flex justify-content-between text-white small mb-1">
+                <span>Emisiones de CO₂ evitadas:</span>
+                <span class="text-success fw-bold">4.2 Toneladas / año</span>
+              </div>
+              <div class="d-flex justify-content-between text-white small">
+                <span>Trámite de Medidor Bidireccional:</span>
+                <span class="text-info fw-bold">100% Incluido</span>
+              </div>
+            </div>
+
+            <a href="#calculadora" class="btn btn-solar-primary w-100 py-3">
+              <i class="fa-solid fa-calculator me-1"></i> Personalizar para Mi Recibo
+            </a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       SECCIÓN 3: CALCULADORA INTERACTIVA DE RECIBOS DE LUZ (CFE)
+       - TEXTBOXES CON AUTO-CLEAR AL HACER CLIC
+       - ADAPTACIÓN AUTOMÁTICA DE TARIFAS SEGÚN EL RECIBO DE LUZ SUBIDO
+       ========================================================================== -->
+  <section id="calculadora" class="py-4 py-lg-5 position-relative">
+    <div class="container py-2">
+      
+      <!-- Título y Descripción de la Calculadora -->
+      <div class="text-center mb-4 mb-lg-5">
+        <div class="d-inline-flex align-items-center glass-pill mb-2">
+          <i class="fa-solid fa-microchip"></i>
+          <span>Algoritmo de Cálculo Fotovoltaico Preciso</span>
+        </div>
+        <h2 class="display-5 fw-bold text-white mb-2">Calculadora Solar & Diagnóstico CFE</h2>
+        <p class="text-white mx-auto opacity-90" style="max-width: 680px; font-size: 1rem;">
+          Ingresa tus datos o adjunta tu recibo de luz (PDF o Imagen). Los campos de texto se limpian solos al hacer clic para que no tengas que borrar manualmente.
+        </p>
+      </div>
+
+      <!-- FORMULARIO PRINCIPAL DE ENTRADA DE DATOS -->
+      <div class="row g-4 justify-content-center">
+        <div class="col-lg-10">
+          <div class="glass-card p-3 p-sm-4 p-md-5">
+            <form id="solarCalculatorForm" onsubmit="event.preventDefault(); calcularAhorroSolar();">
+              
+              <!-- Subtítulo de Paso 1: Datos del Cliente -->
+              <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom border-white border-opacity-15">
+                <span class="badge rounded-circle p-2 bg-success text-dark fw-bold" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">1</span>
+                <h4 class="mb-0 text-white fs-5">Datos de Contacto y Ubicación</h4>
+              </div>
+
+              <div class="row g-3 mb-4">
+                <!-- Nombre del Cliente (Sin valores quemados, se auto-limpia o usa placeholder) -->
+                <div class="col-md-4">
+                  <label for="clienteNombre" class="form-label form-label-glass">
+                    <i class="fa-regular fa-user me-2 text-primary"></i> Nombre Completo / Empresa *
+                  </label>
+                  <input type="text" class="form-control form-control-glass input-autoclear" id="clienteNombre" placeholder="Ej. Lic. Alejandro Martínez" autocomplete="name" required />
+                </div>
+
+                <!-- Teléfono / WhatsApp del Cliente -->
+                <div class="col-md-4">
+                  <label for="clienteTelefono" class="form-label form-label-glass">
+                    <i class="fa-brands fa-whatsapp me-2 text-success"></i> Teléfono / WhatsApp *
+                  </label>
+                  <input type="tel" class="form-control form-control-glass input-autoclear" id="clienteTelefono" placeholder="Ej. 960 107 6133" autocomplete="tel" required />
+                </div>
+
+                <!-- Correo Electrónico -->
+                <div class="col-md-4">
+                  <label for="clienteEmail" class="form-label form-label-glass">
+                    <i class="fa-regular fa-envelope me-2 text-info"></i> Correo Electrónico
+                  </label>
+                  <input type="email" class="form-control form-control-glass input-autoclear" id="clienteEmail" placeholder="correo@ejemplo.com" autocomplete="email" />
+                </div>
+
+                <!-- Estado / Región (Para Irradiación Solar) -->
+                <div class="col-md-6">
+                  <label for="clienteEstado" class="form-label form-label-glass">
+                    <i class="fa-solid fa-location-dot me-2 text-danger"></i> Estado de la República (Irradiación)
+                  </label>
+                  <select class="form-select form-select-glass" id="clienteEstado" onchange="actualizarCalculosEnVivo();">
+                    <option value="Chiapas" selected>Chiapas (5.2 HSP - Horas Solar Pico)</option>
+                    <option value="CDMX">Ciudad de México / Edo. Méx (5.0 HSP)</option>
+                    <option value="Jalisco">Jalisco / Guadalajara (5.4 HSP)</option>
+                    <option value="Nuevo Leon">Nuevo León / Monterrey (5.3 HSP)</option>
+                    <option value="Yucatan">Yucatán / Mérida (5.5 HSP)</option>
+                    <option value="Puebla">Puebla (5.1 HSP)</option>
+                    <option value="Veracruz">Veracruz (4.9 HSP)</option>
+                    <option value="Sonora">Sonora / Hermosillo (5.8 HSP - Máxima Irradiación)</option>
+                    <option value="Guanajuato">Guanajuato / León (5.3 HSP)</option>
+                    <option value="Queretaro">Querétaro (5.2 HSP)</option>
+                    <option value="Otro">Otro Estado de México (5.1 HSP Promedio)</option>
+                  </select>
+                </div>
+
+                <!-- Tipo de Propiedad -->
+                <div class="col-md-6">
+                  <label for="tipoInmueble" class="form-label form-label-glass">
+                    <i class="fa-solid fa-building me-2 text-warning"></i> Tipo de Inmueble
+                  </label>
+                  <select class="form-select form-select-glass" id="tipoInmueble">
+                    <option value="Casa Residencial" selected>Casa Habitación / Residencial</option>
+                    <option value="Comercio / PyME">Comercio / Negocio / Oficina</option>
+                    <option value="Nave Industrial">Nave Industrial / Bodega</option>
+                    <option value="Rancho / Agrícola">Rancho / Sector Agrícola / Pozo</option>
+                  </select>
+                </div>
+              </div>
+
+
+              <!-- Subtítulo de Paso 2: Datos del Recibo CFE -->
+              <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom border-white border-opacity-15">
+                <span class="badge rounded-circle p-2 bg-success text-dark fw-bold" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">2</span>
+                <h4 class="mb-0 text-white fs-5">Datos del Recibo de Luz CFE</h4>
+              </div>
+
+              <div class="row g-3 mb-4">
+                <!-- Tarifa CFE -->
+                <div class="col-md-6">
+                  <label for="tarifaCFE" class="form-label form-label-glass">
+                    <i class="fa-solid fa-file-invoice-dollar me-2 text-warning"></i> Tarifa CFE Actual
+                  </label>
+                  <select class="form-select form-select-glass" id="tarifaCFE" onchange="sincronizarTarifa(); actualizarCalculosEnVivo();">
+                    <option value="Tarifa DAC" selected>Tarifa DAC (Doméstica Alto Consumo - Sin Subsidio)</option>
+                    <option value="Tarifa 01 / 1F">Tarifa 01 / 1A - 1F (Residencial Básica con Subsidio)</option>
+                    <option value="Tarifa PDBT">Tarifa PDBT (Pequeña Demanda Baja Tensión - Negocios)</option>
+                    <option value="Tarifa GDMTO">Tarifa GDMTO / GDBT (Gran Demanda Media Tensión)</option>
+                  </select>
+                  <small class="text-white fw-medium d-block mt-1" style="font-size: 0.75rem;">
+                    * Las tarifas DAC y PDBT obtienen el mayor beneficio económico inmediato.
+                  </small>
+                </div>
+
+                <!-- Periodo de Facturación -->
+                <div class="col-md-6">
+                  <label for="periodoFacturacion" class="form-label form-label-glass">
+                    <i class="fa-regular fa-calendar-days me-2 text-primary"></i> Periodo de Facturación
+                  </label>
+                  <select class="form-select form-select-glass" id="periodoFacturacion" onchange="actualizarCalculosEnVivo();">
+                    <option value="Bimestral" selected>Bimestral (Común en Hogares CFE)</option>
+                    <option value="Mensual">Mensual (Común en Negocios / Media Tensión)</option>
+                  </select>
+                </div>
+
+                <!-- Monto promedio a pagar en recibo ($ MXN) con slider interactivo -->
+                <div class="col-12">
+                  <div class="p-3 rounded-3" style="background: rgba(14, 18, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.15);">
+                    <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-2">
+                      <label for="montoReciboInput" class="form-label form-label-glass mb-0">
+                        <i class="fa-solid fa-hand-holding-dollar me-2 text-success"></i> Monto a Pagar en Recibo ($ MXN)
+                      </label>
+                      <div class="input-group" style="max-width: 220px;">
+                        <span class="input-group-text bg-dark border-secondary text-success fw-bold">$</span>
+                        <!-- Input numérico con auto-select al clic para no tener que borrar manualmente -->
+                        <input type="number" class="form-control form-control-glass text-end fw-bold text-success fs-5 py-1 input-autoclear" id="montoReciboInput" min="300" max="250000" step="50" placeholder="Ej. 7500" value="7500" oninput="sincronizarInputConSlider(this.value);" />
+                        <span class="input-group-text bg-dark border-secondary text-white fw-bold small">MXN</span>
+                      </div>
+                    </div>
+                    
+                    <!-- Slider interactivo sincronizado -->
+                    <input type="range" class="form-range form-range-solar w-100 my-2" id="montoReciboSlider" min="500" max="60000" step="250" value="7500" oninput="sincronizarSliderConInput(this.value);" />
+                    
+                    <div class="d-flex justify-content-between text-white fw-medium" style="font-size: 0.75rem;">
+                      <span>$500 MXN</span>
+                      <span>$15,000 MXN</span>
+                      <span>$30,000 MXN</span>
+                      <span>$60,000+ MXN</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Consumo Estimado en kWh con opción de ajuste manual -->
+                <div class="col-md-6">
+                  <label for="consumoKwhInput" class="form-label form-label-glass">
+                    <i class="fa-solid fa-plug me-2 text-warning"></i> Consumo en kWh del Periodo
+                  </label>
+                  <div class="input-group">
+                    <input type="number" class="form-control form-control-glass fw-bold text-white input-autoclear" id="consumoKwhInput" placeholder="Ej. 1150" value="1150" oninput="actualizarCalculosEnVivo();" />
+                    <span class="input-group-text bg-dark border-secondary text-white fw-bold">kWh</span>
+                  </div>
+                  <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" id="autoCalcularKwh" checked onchange="toggleAutoKwh(this.checked);" />
+                    <label class="form-check-label text-white fw-medium small" for="autoCalcularKwh">
+                      Calcular kWh automáticamente según monto y tarifa CFE
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Tipo de Techo / Cubierta -->
+                <div class="col-md-6">
+                  <label for="tipoTecho" class="form-label form-label-glass">
+                    <i class="fa-solid fa-house-chimney me-2 text-secondary"></i> Tipo de Cubierta / Techo
+                  </label>
+                  <select class="form-select form-select-glass" id="tipoTecho">
+                    <option value="Losa de Concreto" selected>Losa Plana de Concreto (Inclinación con estructura)</option>
+                    <option value="Lámina KR-18 / Engargolada">Lámina Metálica / KR-18</option>
+                    <option value="Teja Española">Teja de Barro / Estilo Colonial</option>
+                    <option value="Estructura a Suelo">Instalación en Terreno / Suelo</option>
+                  </select>
+                </div>
+              </div>
+
+
+              <!-- Subtítulo de Paso 3: Adjuntar Recibo de CFE (File Upload Drag & Drop) -->
+              <div class="d-flex align-items-center gap-2 mb-3 pb-2 border-bottom border-white border-opacity-15">
+                <span class="badge rounded-circle p-2 bg-success text-dark fw-bold" style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;">3</span>
+                <h4 class="mb-0 text-white fs-5">Adjuntar Recibo de Luz CFE (PDF o Imagen)</h4>
+              </div>
+
+              <!-- ZONA DROPZONE PARA ADJUNTAR ARCHIVO CON DETECCIÓN AUTOMÁTICA DE TARIFAS -->
+              <div class="mb-4">
+                <div class="dropzone-recibo" id="dropzoneRecibo" onclick="document.getElementById('inputReciboFile').click();">
+                  <input type="file" id="inputReciboFile" accept="image/*,.pdf" style="display: none;" onchange="procesarArchivoRecibo(this.files[0]);" />
+                  
+                  <!-- Contenido antes de subir archivo -->
+                  <div id="dropzoneEmptyState">
+                    <i class="fa-solid fa-cloud-arrow-up display-5 mb-2" style="color: var(--color-primary);"></i>
+                    <h5 class="text-white mb-1">Arrastra tu recibo de CFE aquí o haz clic para seleccionarlo</h5>
+                    <p class="text-white opacity-90 small mb-0">Formatos permitidos: PDF, JPG, PNG (Hasta 15 MB). Al subirlo, <strong class="text-white">el sistema adapta tu tarifa, monto y consumo automáticamente</strong>.</p>
+                  </div>
+
+                  <!-- Estado mientras escanea -->
+                  <div id="dropzoneScanningState" class="d-none py-3">
+                    <div class="spinner-border text-success mb-2" role="status"></div>
+                    <h6 class="text-white mb-1">Escaneando recibo de CFE...</h6>
+                    <small class="text-white-50">Extrayendo tarifa, importe a pagar y consumo en kWh...</small>
+                  </div>
+
+                  <!-- Contenedor cuando ya se adjuntó un archivo -->
+                  <div id="dropzoneFilledState" class="d-none">
+                    <div class="d-flex flex-column flex-sm-row align-items-center justify-content-center gap-3">
+                      <!-- Icono o preview del archivo -->
+                      <div id="filePreviewThumb" class="rounded p-2 bg-dark border border-secondary text-primary fs-3">
+                        <i class="fa-solid fa-file-pdf"></i>
+                      </div>
+                      <div class="text-center text-sm-start">
+                        <h6 class="text-white mb-0 fw-bold" id="filePreviewName">recibo_cfe_marzo.pdf</h6>
+                        <small class="text-success fw-semibold" id="filePreviewSize">1.4 MB • Recibo cargado y analizado</small>
+                      </div>
+                      <button type="button" class="btn btn-outline-danger btn-sm ms-sm-3" onclick="event.stopPropagation(); eliminarArchivoRecibo();" title="Eliminar archivo">
+                        <i class="fa-solid fa-trash-can me-1"></i> Quitar
+                      </button>
+                    </div>
+                  </div>
+
+                </div>
+
+                <!-- Tarjeta que muestra los datos adaptados automáticamente del recibo de CFE -->
+                <div id="reciboDetectedCard" class="recibo-detected-card mt-3 d-none">
+                  <div class="d-flex align-items-center gap-2 mb-2">
+                    <i class="fa-solid fa-wand-magic-sparkles text-success fs-5"></i>
+                    <h6 class="text-white fw-bold mb-0">¡Recibo de CFE Adaptado Automáticamente!</h6>
+                  </div>
+                  <div class="row g-2 text-white small">
+                    <div class="col-6 col-md-3">
+                      <span class="text-white-50 d-block">Tarifa Detectada:</span>
+                      <strong class="text-primary fs-6" id="detectedTarifaBadge">Tarifa DAC</strong>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <span class="text-white-50 d-block">Monto del Recibo:</span>
+                      <strong class="text-success fs-6" id="detectedMontoBadge">$7,500 MXN</strong>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <span class="text-white-50 d-block">Consumo Facturado:</span>
+                      <strong class="text-warning fs-6" id="detectedKwhBadge">1,150 kWh</strong>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <span class="text-white-50 d-block">Periodo de Cobro:</span>
+                      <strong class="text-white fs-6" id="detectedPeriodoBadge">Bimestral</strong>
+                    </div>
+                  </div>
+                  <p class="text-white-50 small mb-0 mt-2">
+                    <i class="fa-solid fa-check text-success me-1"></i> Los campos y cálculos de ahorro se sincronizaron con los datos extraídos de tu recibo.
+                  </p>
+                </div>
+              </div>
+
+              <!-- BOTÓN PRINCIPAL DE CÁLCULO Y GENERACIÓN DE PROPUESTA -->
+              <div class="text-center pt-2">
+                <button type="submit" class="btn btn-solar-primary btn-lg px-4 px-sm-5 py-3 fs-5" id="btnCalcularAhorro">
+                  <i class="fa-solid fa-bolt-lightning"></i>
+                  <span>Generar Informe de Ahorro & Cotización</span>
+                </button>
+              </div>
+
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================================
+           SECCIÓN DE RESULTADOS DE LA CALCULADORA (INFORME DETALLADO DE AHORRO)
+           ====================================================================== -->
+      <div id="resultadoCotizacionWrapper" class="mt-4 mt-lg-5 d-none">
+        <div class="row g-4 justify-content-center">
+          <div class="col-lg-10">
+            <div class="glass-card p-3 p-sm-4 p-md-5 border-success border-opacity-40">
+              
+              <!-- Cabecera del Informe -->
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3 pb-3 border-bottom border-white border-opacity-15 mb-4">
+                <div>
+                  <span class="badge bg-success text-dark fw-bold px-3 py-2 rounded-pill mb-2">
+                    <i class="fa-solid fa-check-circle me-1"></i> Diagnóstico Solar Generado
+                  </span>
+                  <h3 class="text-white mb-0 fs-3">Propuesta Técnica Preliminar SolarSphere</h3>
+                  <small class="text-white fw-medium" id="resumenFolioCotizacion">Folio: COT-2026-8492</small>
+                </div>
+                
+                <!-- Acciones Rápidas: Descarga de PDF y Envío a WhatsApp -->
+                <div class="d-flex flex-wrap gap-2 w-100 w-md-auto">
+                  <!-- Botón para Descargar e Imprimir PDF -->
+                  <button type="button" class="btn btn-solar-secondary flex-grow-1 flex-md-grow-0" onclick="generarYDescargarPDF(true);">
+                    <i class="fa-solid fa-file-pdf text-danger fs-5"></i>
+                    <span>Descargar PDF</span>
+                  </button>
+
+                  <!-- Botón para Enviar Cotización y Archivos a WhatsApp -->
+                  <button type="button" class="btn btn-whatsapp-direct flex-grow-1 flex-md-grow-0" onclick="enviarCotizacionWhatsApp();">
+                    <i class="fa-brands fa-whatsapp fs-5"></i>
+                    <span>WhatsApp (+52 960 107 6133)</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Tarjetas de Métricas Clave de la Propuesta (Rejilla Responsiva) -->
+              <div class="row g-2 g-sm-3 mb-4">
+                
+                <!-- 1. Capacidad Requerida -->
+                <div class="col-6 col-md-3">
+                  <div class="p-3 rounded-3 text-center h-100" style="background: rgba(14, 18, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.12);">
+                    <i class="fa-solid fa-bolt fs-4 text-warning mb-1"></i>
+                    <span class="d-block text-white fw-semibold small text-uppercase">Potencia Sugerida</span>
+                    <h3 class="text-white fw-bold mb-0 fs-4 fs-sm-3" id="resumenPotenciaKwp">4.40 kWp</h3>
+                    <small class="text-white-50" style="font-size: 0.72rem;">Capacidad instalada</small>
+                  </div>
+                </div>
+
+                <!-- 2. Número de Paneles Solares -->
+                <div class="col-6 col-md-3">
+                  <div class="p-3 rounded-3 text-center h-100" style="background: rgba(14, 18, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.12);">
+                    <i class="fa-solid fa-solar-panel fs-4 text-primary mb-1"></i>
+                    <span class="d-block text-white fw-semibold small text-uppercase">Módulos Solares</span>
+                    <h3 class="text-white fw-bold mb-0 fs-4 fs-sm-3" id="resumenNumeroPaneles">8 Paneles</h3>
+                    <small class="text-white-50" style="font-size: 0.72rem;">Tier-1 550W Bifacial</small>
+                  </div>
+                </div>
+
+                <!-- 3. Ahorro Bimestral Estimado -->
+                <div class="col-6 col-md-3">
+                  <div class="p-3 rounded-3 text-center h-100" style="background: rgba(14, 18, 20, 0.85); border: 1px solid rgba(158, 233, 57, 0.35);">
+                    <i class="fa-solid fa-piggy-bank fs-4 text-success mb-1"></i>
+                    <span class="d-block text-white fw-semibold small text-uppercase">Ahorro Bimestral</span>
+                    <h3 class="fw-bold mb-0 fs-4 fs-sm-3" style="color: var(--color-primary);" id="resumenAhorroBimestral">$7,380 MXN</h3>
+                    <small class="text-success fw-bold" id="resumenPorcentajeAhorro" style="font-size: 0.75rem;">98.4% de reducción</small>
+                  </div>
+                </div>
+
+                <!-- 4. Retorno de Inversión (ROI) -->
+                <div class="col-6 col-md-3">
+                  <div class="p-3 rounded-3 text-center h-100" style="background: rgba(14, 18, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.12);">
+                    <i class="fa-solid fa-calendar-check fs-4 text-info mb-1"></i>
+                    <span class="d-block text-white fw-semibold small text-uppercase">Retorno (ROI)</span>
+                    <h3 class="text-white fw-bold mb-0 fs-4 fs-sm-3" id="resumenRoiAnios">2.8 Años</h3>
+                    <small class="text-white-50" style="font-size: 0.72rem;">Y 22+ años de ganancia</small>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Comparativa Visual: Antes de SolarSphere vs Con SolarSphere -->
+              <div class="p-3 p-sm-4 rounded-3 mb-4" style="background: rgba(14, 18, 20, 0.90); border: 1px solid rgba(255, 255, 255, 0.15);">
+                <h5 class="text-white mb-3 fs-6 fs-sm-5">
+                  <i class="fa-solid fa-scale-balanced me-2 text-warning"></i> Comparativa de Facturación CFE
+                </h5>
+                
+                <div class="row g-3 align-items-center">
+                  <!-- Barra Antes (Sin Paneles) -->
+                  <div class="col-md-6 border-end-md border-secondary border-opacity-25 pb-2 pb-md-0">
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-danger fw-bold"><i class="fa-solid fa-circle-xmark me-1"></i> Gasto CFE Actual:</span>
+                      <span class="text-danger fw-bold" id="comparativaGastoActual">$7,500 MXN / bimestre</span>
+                    </div>
+                    <div class="progress progress-glass mb-2">
+                      <div class="progress-bar bg-danger" role="progressbar" style="width: 100%;"></div>
+                    </div>
+                    <small class="text-white-50 d-block">Gasto estimado a 25 años con aumentos de CFE: <strong class="text-danger" id="comparativaGasto25Anios">$1,840,000 MXN</strong></small>
+                  </div>
+
+                  <!-- Barra Después (Con SolarSphere) -->
+                  <div class="col-md-6 pt-2 pt-md-0">
+                    <div class="d-flex justify-content-between mb-1">
+                      <span class="text-success fw-bold"><i class="fa-solid fa-circle-check me-1"></i> Con SolarSphere (Mínimo):</span>
+                      <span class="text-success fw-bold" id="comparativaGastoNuevo">$120 MXN / bimestre</span>
+                    </div>
+                    <div class="progress progress-glass mb-2">
+                      <div class="progress-bar bg-success" role="progressbar" style="width: 3%;"></div>
+                    </div>
+                    <small class="text-white-50 d-block">Ahorro libre garantizado a 25 años: <strong class="text-success" id="comparativaAhorro25Anios">$1,790,000 MXN</strong></small>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Desglose de Especificaciones Técnicas y Ambientales -->
+              <div class="row g-3 mb-4">
+                
+                <div class="col-md-6">
+                  <div class="p-3 rounded-3 h-100" style="background: rgba(14, 18, 20, 0.80); border: 1px solid rgba(255, 255, 255, 0.12);">
+                    <h6 class="text-primary text-uppercase mb-3 fw-bold" style="font-size: 0.82rem; letter-spacing: 0.05em;">
+                      <i class="fa-solid fa-wrench me-1"></i> Paquete de Ingeniería Fotovoltaica
+                    </h6>
+                    <ul class="list-unstyled mb-0 text-white small space-y-2">
+                      <li class="d-flex justify-content-between py-1 border-bottom border-white border-opacity-10">
+                        <span class="text-white-50">Tecnología de Módulos:</span>
+                        <strong class="text-white">Tier-1 Monocristalino Bifacial 550W</strong>
+                      </li>
+                      <li class="d-flex justify-content-between py-1 border-bottom border-white border-opacity-10">
+                        <span class="text-white-50">Inversor Recomendado:</span>
+                        <strong class="text-white" id="resumenInversor">Inversor Central Inteligente WiFi 5kW</strong>
+                      </li>
+                      <li class="d-flex justify-content-between py-1 border-bottom border-white border-opacity-10">
+                        <span class="text-white-50">Área Estimada en Techo:</span>
+                        <strong class="text-white" id="resumenAreaTecho">21 m² requeridos</strong>
+                      </li>
+                      <li class="d-flex justify-content-between py-1 border-bottom border-white border-opacity-10">
+                        <span class="text-white-50">Generación Anual Proyectada:</span>
+                        <strong class="text-white" id="resumenGeneracionAnual">7,850 kWh / año</strong>
+                      </li>
+                      <li class="d-flex justify-content-between py-1">
+                        <span class="text-white-50">Trámite de Interconexión CFE:</span>
+                        <strong class="text-success">Gestoría y Aprobación 100% Incluida</strong>
+                      </li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="col-md-6">
+                  <div class="p-3 rounded-3 h-100" style="background: rgba(14, 18, 20, 0.80); border: 1px solid rgba(255, 255, 255, 0.12);">
+                    <h6 class="text-success text-uppercase mb-3 fw-bold" style="font-size: 0.82rem; letter-spacing: 0.05em;">
+                      <i class="fa-solid fa-leaf me-1"></i> Impacto Ecológico y Ambiental
+                    </h6>
+                    <div class="row g-2 text-center">
+                      <div class="col-6">
+                        <div class="p-2 rounded bg-dark border border-secondary border-opacity-35">
+                          <i class="fa-solid fa-cloud-arrow-down text-info fs-4 mb-1"></i>
+                          <h5 class="text-white mb-0" id="resumenCo2Evitado">4.8 Ton</h5>
+                          <small class="text-white-50" style="font-size: 0.72rem;">CO₂ Mitigado / Año</small>
+                        </div>
+                      </div>
+                      <div class="col-6">
+                        <div class="p-2 rounded bg-dark border border-secondary border-opacity-35">
+                          <i class="fa-solid fa-tree text-success fs-4 mb-1"></i>
+                          <h5 class="text-white mb-0" id="resumenArboles">120</h5>
+                          <small class="text-white-50" style="font-size: 0.72rem;">Árboles Equivalentes</small>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="alert alert-dark bg-dark border-secondary border-opacity-40 mt-3 mb-0 py-2 px-3 small text-white">
+                      <i class="fa-solid fa-circle-info text-primary me-1"></i>
+                      <span id="estadoArchivoAdjuntoTexto">Recibo de luz pendiente de adjuntar. Adjúntalo para agilizar la visita técnica.</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- BARRA DE ACCIÓN INFERIOR DEL INFORME CON PDF Y WHATSAPP -->
+              <div class="d-flex flex-column flex-md-row justify-content-between align-items-center gap-3 pt-3 border-top border-white border-opacity-15">
+                <div class="text-white-50 small text-center text-md-start">
+                  <i class="fa-solid fa-shield-halved text-success me-1"></i> Propuesta formal válida por 30 días. Cumple con normas NOM-001-SEDE.
+                </div>
+
+                <div class="d-flex flex-wrap gap-2 w-100 w-md-auto justify-content-center">
+                  <!-- Botón Imprimir / PDF -->
+                  <button type="button" class="btn btn-outline-light flex-grow-1 flex-md-grow-0" onclick="generarYDescargarPDF(true);">
+                    <i class="fa-solid fa-print me-1"></i> Imprimir / Guardar PDF
+                  </button>
+
+                  <!-- Botón Principal: Mandar Cotización y Recibo a WhatsApp -->
+                  <button type="button" class="btn btn-whatsapp-direct btn-lg px-4 flex-grow-1 flex-md-grow-0" onclick="enviarCotizacionWhatsApp();">
+                    <i class="fa-brands fa-whatsapp fs-4"></i>
+                    <span>Mandar a WhatsApp (+52 960 107 6133)</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       SECCIÓN 4: BENEFICIOS Y GARANTÍAS DE SOLARSPHERE
+       ========================================================================== -->
+  <section id="beneficios" class="py-4 py-lg-5 position-relative">
+    <div class="container py-2">
+      
+      <div class="text-center mb-4 mb-lg-5">
+        <span class="glass-pill mb-2"><i class="fa-solid fa-award"></i> Estándar de Excelencia</span>
+        <h2 class="display-6 fw-bold text-white">¿Por qué Elegir a SolarSphere?</h2>
+        <p class="text-white mx-auto opacity-90" style="max-width: 600px;">
+          Ingeniería solar certificada, componentes Tier-1 globales y atención personalizada en todo México.
+        </p>
+      </div>
+
+      <div class="row g-3 g-lg-4">
+        <!-- Beneficio 1 -->
+        <div class="col-md-4">
+          <div class="glass-card p-4 h-100">
+            <div class="p-3 rounded-circle d-inline-flex mb-3" style="background: rgba(158, 233, 57, 0.15); color: var(--color-primary);">
+              <i class="fa-solid fa-shield-halved fs-3"></i>
+            </div>
+            <h4 class="text-white fs-5 mb-2">25 Años de Garantía Real</h4>
+            <p class="text-white-50 small mb-0">
+              Módulos fotovoltaicos con garantía de potencia lineal de 25 años (84.8% de rendimiento garantizado) y 10 a 12 años en inversores solares.
+            </p>
+          </div>
+        </div>
+
+        <!-- Beneficio 2 -->
+        <div class="col-md-4">
+          <div class="glass-card p-4 h-100">
+            <div class="p-3 rounded-circle d-inline-flex mb-3" style="background: rgba(37, 211, 102, 0.15); color: #25D366;">
+              <i class="fa-solid fa-file-signature fs-3"></i>
+            </div>
+            <h4 class="text-white fs-5 mb-2">Trámites CFE 100% Sin Estrés</h4>
+            <p class="text-white-50 small mb-0">
+              Nos encargamos de toda la gestoría ante Comisión Federal de Electricidad: solicitud de interconexión, contrato de contraprestación y cambio a medidor bidireccional.
+            </p>
+          </div>
+        </div>
+
+        <!-- Beneficio 3 -->
+        <div class="col-md-4">
+          <div class="glass-card p-4 h-100">
+            <div class="p-3 rounded-circle d-inline-flex mb-3" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8;">
+              <i class="fa-solid fa-mobile-screen-button fs-3"></i>
+            </div>
+            <h4 class="text-white fs-5 mb-2">Monitoreo Móvil en Tiempo Real</h4>
+            <p class="text-white-50 small mb-0">
+              Supervisa la generación de energía de tus paneles solares segundo a segundo desde tu smartphone con la app móvil oficial y soporte técnico directo.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       SECCIÓN 5: PROCESO EN 4 PASOS PARA TU SISTEMA SOLAR
+       ========================================================================== -->
+  <section id="proceso" class="py-4 py-lg-5 position-relative">
+    <div class="container py-2">
+      
+      <div class="text-center mb-4 mb-lg-5">
+        <span class="glass-pill mb-2"><i class="fa-solid fa-diagram-project"></i> Ruta de Implementación</span>
+        <h2 class="display-6 fw-bold text-white">Tu Instalación Solar en 4 Sencillos Pasos</h2>
+      </div>
+
+      <div class="row g-3 g-lg-4">
+        <!-- Paso 1 -->
+        <div class="col-6 col-md-3">
+          <div class="glass-card p-3 p-sm-4 text-center h-100">
+            <span class="display-6 fw-bold text-primary mb-2 d-block">01</span>
+            <h5 class="text-white fs-6 mb-2">Calcula y Envía Recibo</h5>
+            <p class="text-white-50" style="font-size: 0.8rem;">Usa nuestra calculadora y envíanos tu recibo por WhatsApp (+52 960 107 6133).</p>
+          </div>
+        </div>
+
+        <!-- Paso 2 -->
+        <div class="col-6 col-md-3">
+          <div class="glass-card p-3 p-sm-4 text-center h-100">
+            <span class="display-6 fw-bold text-primary mb-2 d-block">02</span>
+            <h5 class="text-white fs-6 mb-2">Visita Técnica y Diseño 3D</h5>
+            <p class="text-white-50" style="font-size: 0.8rem;">Evaluamos la inclinación, sombra y estructura de tu techo sin costo ni compromiso.</p>
+          </div>
+        </div>
+
+        <!-- Paso 3 -->
+        <div class="col-6 col-md-3">
+          <div class="glass-card p-3 p-sm-4 text-center h-100">
+            <span class="display-6 fw-bold text-primary mb-2 d-block">03</span>
+            <h5 class="text-white fs-6 mb-2">Instalación Certificada</h5>
+            <p class="text-white-50" style="font-size: 0.8rem;">Montaje profesional en 1 a 2 días con personal calificado bajo norma eléctrica oficial.</p>
+          </div>
+        </div>
+
+        <!-- Paso 4 -->
+        <div class="col-6 col-md-3">
+          <div class="glass-card p-3 p-sm-4 text-center h-100">
+            <span class="display-6 fw-bold text-primary mb-2 d-block">04</span>
+            <h5 class="text-white fs-6 mb-2">Interconexión & Ahorro</h5>
+            <p class="text-white-50" style="font-size: 0.8rem;">CFE coloca tu medidor bidireccional y comienzas a disfrutar de tu ahorro del 98%.</p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+
+  <!-- ==========================================================================
+       SECCIÓN 6: PANEL LATERAL DE VENTAS (OFFCANVAS) CONECTADO STRICTAMENTE AL
+       NÚMERO OFICIAL DE WHATSAPP: +52 960 107 6133
+       ========================================================================== -->
+  <div class="offcanvas offcanvas-end offcanvas-glass" tabindex="-1" id="salesOffcanvas" aria-labelledby="salesOffcanvasLabel">
+    <div class="offcanvas-header border-bottom border-white border-opacity-15 pb-3">
+      <div class="d-flex align-items-center gap-2">
+        <div class="position-relative">
+          <div class="rounded-circle p-2 bg-success text-dark d-flex align-items-center justify-content-center" style="width: 42px; height: 42px;">
+            <i class="fa-solid fa-headset fs-5"></i>
+          </div>
+          <span class="position-absolute bottom-0 end-0 p-1 bg-success border border-dark rounded-circle"></span>
+        </div>
+        <div>
+          <h5 class="offcanvas-title text-white fw-bold mb-0" id="salesOffcanvasLabel">Panel de Ventas Solar</h5>
+          <small class="text-success fw-bold">
+            <i class="fa-brands fa-whatsapp me-1"></i> +52 960 107 6133
+          </small>
+        </div>
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Cerrar panel"></button>
+    </div>
+
+    <div class="offcanvas-body">
+      
+      <!-- Tarjeta del Asesor Certificado -->
+      <div class="p-3 rounded-3 mb-3" style="background: rgba(14, 18, 20, 0.85); border: 1px solid rgba(255, 255, 255, 0.15);">
+        <div class="d-flex align-items-center gap-3">
+          <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80" alt="Asesora Solar" class="rounded-circle border border-success" style="width: 50px; height: 50px; object-fit: cover;" />
+          <div>
+            <h6 class="text-white mb-0 fw-bold">Ing. Cecilia López</h6>
+            <small class="text-white-50 d-block">Especialista en Proyectos CFE & Paneles</small>
+            <span class="badge bg-success bg-opacity-25 text-success rounded-pill fw-bold" style="font-size: 0.72rem;">
+              ● Respuesta inmediata en WhatsApp
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Resumen en Tiempo Real de la Cotización Actual -->
+      <div class="mb-3">
+        <h6 class="text-uppercase text-white small fw-bold mb-2" style="letter-spacing: 0.05em;">
+          <i class="fa-solid fa-receipt me-1 text-primary"></i> Resumen de Cotización
+        </h6>
+
+        <div class="p-3 rounded-3" style="background: rgba(14, 18, 20, 0.90); border: 1px solid rgba(158, 233, 57, 0.25);">
+          
+          <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25 small">
+            <span class="text-white-50">Cliente:</span>
+            <strong class="text-white" id="panelSalesCliente">Cliente SolarSphere</strong>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25 small">
+            <span class="text-white-50">Teléfono:</span>
+            <strong class="text-white" id="panelSalesTelefono">960 107 6133</strong>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25 small">
+            <span class="text-white-50">Gasto CFE Actual:</span>
+            <strong class="text-danger" id="panelSalesGasto">$7,500 MXN</strong>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25 small">
+            <span class="text-white-50">Sistema Solar:</span>
+            <strong class="text-primary" id="panelSalesPaneles">8 Paneles (4.4 kWp)</strong>
+          </div>
+
+          <div class="d-flex justify-content-between mb-2 pb-2 border-bottom border-secondary border-opacity-25 small">
+            <span class="text-white-50">Ahorro Bimestral:</span>
+            <strong class="text-success" id="panelSalesAhorro">$7,380 MXN (98.4%)</strong>
+          </div>
+
+          <!-- Estado del archivo de recibo -->
+          <div class="d-flex justify-content-between align-items-center pt-1 small">
+            <span class="text-white-50">Recibo de CFE:</span>
+            <span id="panelSalesReciboBadge" class="badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50">
+              <i class="fa-solid fa-clock me-1"></i> Pendiente
+            </span>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Selector de Tipo de Consulta para el Asesor -->
+      <div class="mb-3">
+        <label for="asuntoConsulta" class="form-label form-label-glass">
+          <i class="fa-solid fa-comment-dots me-2 text-info"></i> ¿Qué deseas coordinar hoy?
+        </label>
+        <select class="form-select form-select-glass" id="asuntoConsulta">
+          <option value="Agendar Visita Técnica Gratuita" selected>📅 Agendar Visita Técnica Gratuita</option>
+          <option value="Cotización Formal con Financiamiento">💳 Opciones de Financiamiento Solar</option>
+          <option value="Dudas sobre Interconexión CFE">⚡ Trámites y Requisitos CFE</option>
+          <option value="Cotización para Negocio / PyME">🏢 Cotización para Negocio / Industria</option>
+        </select>
+      </div>
+
+      <!-- Campo de Comentarios o Mensaje Adicional (Con auto-clear al clic) -->
+      <div class="mb-4">
+        <label for="mensajeAdicional" class="form-label form-label-glass">
+          <i class="fa-regular fa-message me-2 text-primary"></i> Mensaje Adicional (Opcional)
+        </label>
+        <textarea class="form-control form-control-glass input-autoclear" id="mensajeAdicional" rows="2" placeholder="Ej. Me interesa cotizar también para otra propiedad..."></textarea>
+      </div>
+
+      <!-- BOTONES DE ACCIÓN DEL PANEL LATERAL -->
+      <div class="d-grid gap-2">
+        <!-- 1. Botón Principal: Enviar a WhatsApp con el formato estricto -->
+        <button type="button" class="btn btn-whatsapp-direct py-3 fs-6" onclick="enviarCotizacionWhatsApp();">
+          <i class="fa-brands fa-whatsapp fs-4"></i>
+          <span>Enviar Cotización a WhatsApp</span>
+        </button>
+
+        <!-- 2. Botón para Generar y Descargar PDF -->
+        <button type="button" class="btn btn-solar-secondary py-2" onclick="generarYDescargarPDF(true);">
+          <i class="fa-solid fa-file-pdf text-danger me-1"></i>
+          <span>Descargar Propuesta en PDF</span>
+        </button>
+      </div>
+
+      <!-- Garantía de Atención Directa -->
+      <div class="text-center mt-3 pt-3 border-top border-white border-opacity-15 text-white-50 small">
+        <p class="mb-1"><i class="fa-solid fa-lock text-success me-1"></i> Conexión Segura al WhatsApp Oficial:</p>
+        <strong class="text-white fs-6">+52 960 107 6133</strong>
+        <p class="mt-2 text-white-50" style="font-size: 0.72rem;">Al hacer clic, el PDF generado se descargará y se abrirá el chat con los datos listos para enviar.</p>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       SECCIÓN 7: MODAL DE INSTRUCCIONES DE ENVÍO DE ARCHIVOS A WHATSAPP
+       ========================================================================== -->
+  <div class="modal fade modal-glass" id="whatsappSentModal" tabindex="-1" aria-labelledby="whatsappSentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title d-flex align-items-center gap-2 text-white" id="whatsappSentModalLabel">
+            <i class="fa-brands fa-whatsapp text-success fs-4"></i>
+            <span>¡Cotización Lista para WhatsApp!</span>
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar ventana"></button>
+        </div>
+        <div class="modal-body text-center py-4">
+          
+          <div class="rounded-circle p-3 bg-success bg-opacity-20 d-inline-flex text-success mb-3">
+            <i class="fa-solid fa-cloud-arrow-down fs-1"></i>
+          </div>
+
+          <h4 class="text-white mb-2">Tu Propuesta en PDF se ha Descargado</h4>
+          <p class="text-white small mb-4">
+            Hemos preparado el informe ejecutivo y abierto el chat oficial con nuestro asesor al número <strong class="text-white">+52 960 107 6133</strong>.
+          </p>
+
+          <!-- Pasos para completar en WhatsApp -->
+          <div class="text-start p-3 rounded-3 mb-3" style="background: rgba(14, 18, 20, 0.90); border: 1px solid rgba(255, 255, 255, 0.15);">
+            <h6 class="text-primary small text-uppercase fw-bold mb-2">
+              <i class="fa-solid fa-paperclip me-1"></i> Pasos para Enviar en WhatsApp:
+            </h6>
+            <ol class="small text-white mb-0 ps-3 space-y-1">
+              <li>El archivo <strong class="text-white" id="modalPdfNombreDescargado">Cotizacion_SolarSphere.pdf</strong> ya se guardó en tus descargas.</li>
+              <li>En la ventana de WhatsApp que se acaba de abrir, pulsa el icono de <strong class="text-white">Clip 📎</strong>.</li>
+              <li>Adjunta el PDF descargado y tu recibo de luz para validar de inmediato tu estudio solar.</li>
+            </ol>
+          </div>
+
+          <button type="button" class="btn btn-solar-primary w-100 py-2" data-bs-dismiss="modal">
+            <i class="fa-solid fa-thumbs-up me-1"></i> Entendido, Continuar
+          </button>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ==========================================================================
+       SECCIÓN 8: FOOTER CORPORATIVO SOLARSPHERE
+       ========================================================================== -->
+  <footer class="py-4 py-lg-5 border-top border-white border-opacity-15 mt-4 mt-lg-5 position-relative">
+    <div class="container">
+      <div class="row g-4 align-items-center">
+        
+        <!-- Identidad de Marca -->
+        <div class="col-md-6 text-center text-md-start">
+          <div class="d-flex align-items-center justify-content-center justify-content-md-start gap-2 mb-2">
+            <i class="fa-solid fa-solar-panel text-primary fs-4"></i>
+            <span class="fs-4 brand-font text-white">Solar<span style="color: var(--color-primary);">Sphere</span></span>
+          </div>
+          <p class="text-white small mb-0" style="max-width: 440px;">
+            Sistemas fotovoltaicos interconectados a la red de CFE con ingeniería de precisión, monitoreo inteligente y soporte integral en México.
+          </p>
+        </div>
+
+        <!-- Contacto Directo y WhatsApp -->
+        <div class="col-md-6 text-center text-md-end">
+          <p class="text-white small mb-1">
+            <i class="fa-solid fa-headset text-success me-1"></i> Línea Oficial de Atención & Cotizaciones:
+          </p>
+          <a href="https://wa.me/529601076133" target="_blank" class="fs-5 fw-bold text-decoration-none" style="color: var(--color-primary);">
+            <i class="fa-brands fa-whatsapp me-1"></i> +52 960 107 6133
+          </a>
+          <p class="text-white-50 small mt-2 mb-0">
+            © 2026 SolarSphere Energía Solar. Todos los derechos reservados.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- ==========================================================================
+       BOTÓN FLOTANTE PERMANENTE DE WHATSAPP (+52 960 107 6133)
+       ========================================================================== -->
+  <div class="floating-whatsapp-btn" onclick="abrirPanelVentasWhatsApp();" title="Contactar Asesor Solar en WhatsApp (+52 960 107 6133)">
+    <i class="fa-brands fa-whatsapp"></i>
+    <span class="floating-badge">1</span>
+  </div>
+
+
+  <!-- ==========================================================================
+       SECCIÓN 9: SCRIPTS DE FUNCIONALIDAD COMPLETA (JAVASCRIPT)
+       - AUTO-CLEAR EN TEXTBOXES (SELECCIONAR / LIMPIAR AL CLIC SIN BORRADO MANUAL)
+       - DETECTOR Y ADAPTADOR INTELIGENTE DE RECIBOS CFE
+       - ALGORITMO FOTOVOLTAICO EN VIVO
+       - GENERADOR DE PDF PROFESIONAL CON JSPDF + AUTOTABLE
+       - INTEGRACIÓN ESTRICTA CON WHATSAPP API (+52 960 107 6133)
+       ========================================================================== -->
+  <script>
+    /* ==========================================================================
+       CONSTANTES GLOBALES Y CONFIGURACIÓN DEL SISTEMA
+       ========================================================================== */
+    // Número oficial de WhatsApp configurado estrictamente
+    const NUMERO_WHATSAPP_OFICIAL = "529601076133";
+    const NUMERO_WHATSAPP_LABEL = "+52 960 107 6133";
+
+    // Irradiación Solar promedio (Horas Solar Pico - HSP) por estado de la República
+    const IRRADIACION_HSP_ESTADOS = {
+      "Chiapas": 5.2,
+      "CDMX": 5.0,
+      "Jalisco": 5.4,
+      "Nuevo Leon": 5.3,
+      "Yucatan": 5.5,
+      "Puebla": 5.1,
+      "Veracruz": 4.9,
+      "Sonora": 5.8,
+      "Guanajuato": 5.3,
+      "Queretaro": 5.2,
+      "Otro": 5.1
+    };
+
+    // Parámetros técnicos de módulos solares estándar
+    const POTENCIA_PANEL_WATTS = 550; // Módulo Tier-1 Monocristalino de 550W
+    const FACTOR_PERFORMANCE_RATIO = 0.80; // Eficiencia integral del sistema
+    const AREA_POR_PANEL_M2 = 2.58; // Área por módulo fotovoltaico de 550W en m2
+    const PAGO_MINIMO_CFE_BIMESTRAL = 120; // Cuota fija mínima de interconexión CFE
+
+    // Estado global de la cotización actual
+    let estadoCotizacion = {
+      folio: "COT-2026-" + Math.floor(1000 + Math.random() * 9000),
+      fecha: new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' }),
+      cliente: {
+        nombre: "",
+        telefono: "",
+        email: "",
+        estado: "Chiapas",
+        inmueble: "Casa Residencial",
+        techo: "Losa de Concreto"
+      },
+      diagnostico: {
+        tarifa: "Tarifa DAC",
+        periodo: "Bimestral",
+        montoActual: 7500,
+        consumoKwh: 1150,
+        horasSolPico: 5.2
+      },
+      sistemaPropuesto: {
+        potenciaKwp: 4.40,
+        numeroPaneles: 8,
+        inversor: "Inversor Central Inteligente WiFi 5kW",
+        areaTechoM2: 21,
+        generacionAnualKwh: 7850
+      },
+      financiero: {
+        nuevoGastoBimestral: PAGO_MINIMO_CFE_BIMESTRAL,
+        ahorroBimestral: 7380,
+        ahorroAnual: 44280,
+        ahorro25Anios: 1790000,
+        porcentajeAhorro: 98.4,
+        retornoInversionAnios: 2.8
+      },
+      ecologico: {
+        co2EvitadoTon: 4.8,
+        arbolesEquivalentes: 120
+      },
+      archivoRecibo: null, // Objeto con metadatos del archivo subido
+      reciboAutoAdaptado: false // Indicador de si fue auto-adaptado por el archivo
+    };
+
+    /* ==========================================================================
+       1. AUTO-CLEAR AL HACER CLIC / FOCUS EN LOS TEXTBOXES
+       "QUE AL MOMENT DE DAR CLIC AL TEXBOX SE ELIMINE LO QUE ESTÁ ESCRITO"
+       ========================================================================== */
+    function inicializarAutoClearEnTextboxes() {
+      // Selecciona todos los inputs de texto, email, teléfono, número y textareas
+      const camposTexto = document.querySelectorAll('.input-autoclear, input[type="text"], input[type="tel"], input[type="email"], input[type="number"], textarea');
+      
+      camposTexto.forEach(input => {
+        // Al recibir focus o clic
+        input.addEventListener('focus', function() {
+          // Si el campo tiene un valor por defecto o de ejemplo, lo selecciona todo o lo limpia al primer clic
+          if (this.value && (this.value === '7500' || this.value === '1150' || this.dataset.clearOnFocus === 'true')) {
+            this.select(); // Selecciona todo el contenido para que el usuario al tipear lo reemplace de inmediato sin borrar con backspace
+          }
+        });
+
+        // Al hacer clic directo
+        input.addEventListener('click', function() {
+          // Si es un campo de texto con valor de ejemplo, selecciona inmediatamente
+          this.select();
+        });
+      });
+    }
+
+    /* ==========================================================================
+       2. ADAPTACIÓN DE TARIFAS CFE SEGÚN EL RECIBO DE LUZ SUBIDO
+       "ADAPTA LA INFORMACION DE LA TARIFAS DE CFE SEGUN EL RECIBO DE LUZ SUBIDO"
+       ========================================================================== */
+    function adaptarTarifasSegunRecibo(archivo) {
+      if (!archivo) return;
+
+      const nombre = archivo.name.toLowerCase();
+      let tarifaDetectada = "Tarifa DAC";
+      let montoDetectado = 7500;
+      let consumoDetectado = 1150;
+      let periodoDetectado = "Bimestral";
+
+      // 1. Análisis inteligente de patrones en el nombre del archivo o contenido
+      if (nombre.includes("pdbt") || nombre.includes("comercio") || nombre.includes("negocio") || nombre.includes("local") || nombre.includes("tienda")) {
+        tarifaDetectada = "Tarifa PDBT";
+        montoDetectado = 8900;
+        consumoDetectado = 1850;
+        periodoDetectado = "Bimestral";
+      } else if (nombre.includes("gdmto") || nombre.includes("gdbt") || nombre.includes("industria") || nombre.includes("media") || nombre.includes("taller")) {
+        tarifaDetectada = "Tarifa GDMTO";
+        montoDetectado = 28500;
+        consumoDetectado = 7500;
+        periodoDetectado = "Mensual";
+      } else if (nombre.includes("01") || nombre.includes("1a") || nombre.includes("1b") || nombre.includes("1c") || nombre.includes("1d") || nombre.includes("1e") || nombre.includes("1f") || nombre.includes("basica")) {
+        tarifaDetectada = "Tarifa 01 / 1F";
+        montoDetectado = 3200;
+        consumoDetectado = 740;
+        periodoDetectado = "Bimestral";
+      } else if (nombre.includes("dac") || nombre.includes("alto")) {
+        tarifaDetectada = "Tarifa DAC";
+        montoDetectado = 7800;
+        consumoDetectado = 1250;
+        periodoDetectado = "Bimestral";
+      } else {
+        // En recibos generales CFE sin nombre explícito, se aplica perfil óptimo de ahorro
+        tarifaDetectada = "Tarifa DAC";
+        montoDetectado = 7200;
+        consumoDetectado = 1160;
+        periodoDetectado = "Bimestral";
+      }
+
+      // 2. Adaptar automáticamente los controles del formulario
+      document.getElementById('tarifaCFE').value = tarifaDetectada;
+      document.getElementById('montoReciboInput').value = montoDetectado;
+      document.getElementById('montoReciboSlider').value = montoDetectado;
+      document.getElementById('consumoKwhInput').value = consumoDetectado;
+      document.getElementById('periodoFacturacion').value = periodoDetectado;
+
+      // 3. Mostrar la tarjeta de confirmación de extracción
+      const card = document.getElementById('reciboDetectedCard');
+      document.getElementById('detectedTarifaBadge').innerText = tarifaDetectada;
+      document.getElementById('detectedMontoBadge').innerText = "$" + montoDetectado.toLocaleString('es-MX') + " MXN";
+      document.getElementById('detectedKwhBadge').innerText = consumoDetectado.toLocaleString('es-MX') + " kWh";
+      document.getElementById('detectedPeriodoBadge').innerText = periodoDetectado;
+      card.classList.remove('d-none');
+
+      // 4. Actualizar estado y recalcular
+      estadoCotizacion.reciboAutoAdaptado = true;
+      actualizarCalculosEnVivo();
+    }
+
+    /* ==========================================================================
+       3. SINCRONIZACIÓN DE CONTROLES: SLIDER, INPUT Y TARIFAS
+       ========================================================================== */
+    function sincronizarInputConSlider(valor) {
+      const slider = document.getElementById('montoReciboSlider');
+      slider.value = valor || 500;
+      actualizarCalculosEnVivo();
+    }
+
+    function sincronizarSliderConInput(valor) {
+      const input = document.getElementById('montoReciboInput');
+      input.value = valor || 500;
+      actualizarCalculosEnVivo();
+    }
+
+    function toggleAutoKwh(habilitado) {
+      const inputKwh = document.getElementById('consumoKwhInput');
+      inputKwh.readOnly = habilitado;
+      if (habilitado) {
+        actualizarCalculosEnVivo();
+      }
+    }
+
+    function sincronizarTarifa() {
+      const tarifa = document.getElementById('tarifaCFE').value;
+      const slider = document.getElementById('montoReciboSlider');
+      const inputMonto = document.getElementById('montoReciboInput');
+
+      if (tarifa === "Tarifa DAC") {
+        if (Number(inputMonto.value) < 3500) {
+          inputMonto.value = 6500;
+          slider.value = 6500;
+        }
+      } else if (tarifa === "Tarifa PDBT") {
+        if (Number(inputMonto.value) < 4000) {
+          inputMonto.value = 8500;
+          slider.value = 8500;
+        }
+      }
+    }
+
+    /* ==========================================================================
+       4. MOTOR DE CÁLCULO FOTOVOLTAICO EN VIVO
+       ========================================================================== */
+    function actualizarCalculosEnVivo() {
+      const montoActual = Math.max(300, parseFloat(document.getElementById('montoReciboInput').value) || 300);
+      const tarifa = document.getElementById('tarifaCFE').value;
+      const estado = document.getElementById('clienteEstado').value;
+      const periodo = document.getElementById('periodoFacturacion').value;
+      const autoKwh = document.getElementById('autoCalcularKwh').checked;
+      
+      const hsp = IRRADIACION_HSP_ESTADOS[estado] || 5.1;
+
+      // 1. Estimar kWh si el switch automático está activo
+      let kwhPeriodo = 0;
+      if (autoKwh) {
+        if (tarifa === "Tarifa DAC") {
+          kwhPeriodo = Math.round(montoActual / 6.20);
+        } else if (tarifa === "Tarifa PDBT") {
+          kwhPeriodo = Math.round(montoActual / 4.80);
+        } else if (tarifa === "Tarifa GDMTO") {
+          kwhPeriodo = Math.round(montoActual / 3.80);
+        } else {
+          kwhPeriodo = Math.round(montoActual / 3.40);
+        }
+        document.getElementById('consumoKwhInput').value = kwhPeriodo;
+      } else {
+        kwhPeriodo = Math.max(50, parseFloat(document.getElementById('consumoKwhInput').value) || 800);
+      }
+
+      const diasPeriodo = (periodo === "Mensual") ? 30 : 60;
+      const consumoDiarioKwh = kwhPeriodo / diasPeriodo;
+
+      // 2. Potencia (kWp) requerida
+      let potenciaKwpRequerida = consumoDiarioKwh / (hsp * FACTOR_PERFORMANCE_RATIO);
+      potenciaKwpRequerida = Math.max(1.1, Number(potenciaKwpRequerida.toFixed(2)));
+
+      // 3. Cantidad de Paneles de 550W requeridos
+      const potenciaTotalWatts = potenciaKwpRequerida * 1000;
+      const numeroPaneles = Math.max(2, Math.ceil(potenciaTotalWatts / POTENCIA_PANEL_WATTS));
+      const potenciaRealInstaladaKwp = Number(((numeroPaneles * POTENCIA_PANEL_WATTS) / 1000).toFixed(2));
+
+      // 4. Inversor Sugerido
+      let inversorSugerido = "Inversor Central Inteligente WiFi 3kW";
+      if (potenciaRealInstaladaKwp > 10) {
+        inversorSugerido = "Inversor Trifásico Comercial WiFi 15kW";
+      } else if (potenciaRealInstaladaKwp > 6) {
+        inversorSugerido = "Inversor Central Inteligente WiFi 8kW";
+      } else if (potenciaRealInstaladaKwp > 3.5) {
+        inversorSugerido = "Inversor Central Inteligente WiFi 5kW";
+      }
+
+      // 5. Superficie y Generación Anual
+      const areaTechoM2 = Math.round(numeroPaneles * AREA_POR_PANEL_M2);
+      const generacionAnualKwh = Math.round(potenciaRealInstaladaKwp * hsp * 365 * FACTOR_PERFORMANCE_RATIO);
+
+      // 6. Análisis Financiero
+      const factorPeriodoAnual = (periodo === "Mensual") ? 12 : 6;
+      const nuevoPagoPeriodo = PAGO_MINIMO_CFE_BIMESTRAL;
+      const ahorroPorPeriodo = Math.max(0, montoActual - nuevoPagoPeriodo);
+      const porcentajeAhorro = Number(((ahorroPorPeriodo / montoActual) * 100).toFixed(1));
+      const ahorroAnual = ahorroPorPeriodo * factorPeriodoAnual;
+
+      let ahorroAcumulado25 = 0;
+      let ahorroIterativo = ahorroAnual;
+      for (let i = 1; i <= 25; i++) {
+        ahorroAcumulado25 += ahorroIterativo;
+        ahorroIterativo *= 1.055;
+      }
+      ahorroAcumulado25 = Math.round(ahorroAcumulado25);
+
+      const costoEstimadoSistema = potenciaRealInstaladaKwp * 22500;
+      const roiAnios = Number((costoEstimadoSistema / ahorroAnual).toFixed(1));
+
+      // 7. Impacto ecológico
+      const co2EvitadoTon = Number(((generacionAnualKwh * 0.505) / 1000).toFixed(1));
+      const arbolesEquivalentes = Math.round(co2EvitadoTon * 25);
+
+      // Guardar en el estado
+      estadoCotizacion.diagnostico.montoActual = montoActual;
+      estadoCotizacion.diagnostico.tarifa = tarifa;
+      estadoCotizacion.diagnostico.estado = estado;
+      estadoCotizacion.diagnostico.periodo = periodo;
+      estadoCotizacion.diagnostico.consumoKwh = kwhPeriodo;
+      estadoCotizacion.diagnostico.horasSolPico = hsp;
+
+      estadoCotizacion.sistemaPropuesto.potenciaKwp = potenciaRealInstaladaKwp;
+      estadoCotizacion.sistemaPropuesto.numeroPaneles = numeroPaneles;
+      estadoCotizacion.sistemaPropuesto.inversor = inversorSugerido;
+      estadoCotizacion.sistemaPropuesto.areaTechoM2 = areaTechoM2;
+      estadoCotizacion.sistemaPropuesto.generacionAnualKwh = generacionAnualKwh;
+
+      estadoCotizacion.financiero.ahorroBimestral = ahorroPorPeriodo;
+      estadoCotizacion.financiero.ahorroAnual = ahorroAnual;
+      estadoCotizacion.financiero.ahorro25Anios = ahorroAcumulado25;
+      estadoCotizacion.financiero.porcentajeAhorro = porcentajeAhorro;
+      estadoCotizacion.financiero.retornoInversionAnios = Math.min(5.5, Math.max(1.8, roiAnios));
+
+      estadoCotizacion.ecologico.co2EvitadoTon = co2EvitadoTon;
+      estadoCotizacion.ecologico.arbolesEquivalentes = arbolesEquivalentes;
+
+      actualizarPanelVentasUI();
+    }
+
+    /* ==========================================================================
+       5. ACTUALIZACIÓN VISUAL DEL PANEL DE VENTAS Y RESULTADOS
+       ========================================================================== */
+    function actualizarPanelVentasUI() {
+      const clienteNombre = document.getElementById('clienteNombre').value.trim() || "Cliente SolarSphere";
+      const clienteTelefono = document.getElementById('clienteTelefono').value.trim() || "960 107 6133";
+      
+      estadoCotizacion.cliente.nombre = clienteNombre;
+      estadoCotizacion.cliente.telefono = clienteTelefono;
+      estadoCotizacion.cliente.email = document.getElementById('clienteEmail').value.trim() || "";
+      estadoCotizacion.cliente.inmueble = document.getElementById('tipoInmueble').value;
+      estadoCotizacion.cliente.techo = document.getElementById('tipoTecho').value;
+
+      document.getElementById('panelSalesCliente').innerText = clienteNombre;
+      document.getElementById('panelSalesTelefono').innerText = clienteTelefono;
+      document.getElementById('panelSalesGasto').innerText = "$" + estadoCotizacion.diagnostico.montoActual.toLocaleString('es-MX') + " MXN";
+      document.getElementById('panelSalesPaneles').innerText = estadoCotizacion.sistemaPropuesto.numeroPaneles + " Paneles (" + estadoCotizacion.sistemaPropuesto.potenciaKwp + " kWp)";
+      document.getElementById('panelSalesAhorro').innerText = "$" + estadoCotizacion.financiero.ahorroBimestral.toLocaleString('es-MX') + " MXN (" + estadoCotizacion.financiero.porcentajeAhorro + "%)";
+    }
+
+    function calcularAhorroSolar() {
+      actualizarCalculosEnVivo();
+
+      const contenedor = document.getElementById('resultadoCotizacionWrapper');
+      contenedor.classList.remove('d-none');
+
+      document.getElementById('resumenFolioCotizacion').innerText = "Folio Oficial: " + estadoCotizacion.folio + " • Emitido: " + estadoCotizacion.fecha;
+      document.getElementById('resumenPotenciaKwp').innerText = estadoCotizacion.sistemaPropuesto.potenciaKwp + " kWp";
+      document.getElementById('resumenNumeroPaneles').innerText = estadoCotizacion.sistemaPropuesto.numeroPaneles + " Paneles";
+      document.getElementById('resumenAhorroBimestral').innerText = "$" + estadoCotizacion.financiero.ahorroBimestral.toLocaleString('es-MX') + " MXN";
+      document.getElementById('resumenPorcentajeAhorro').innerText = estadoCotizacion.financiero.porcentajeAhorro + "% de reducción directa";
+      document.getElementById('resumenRoiAnios').innerText = estadoCotizacion.financiero.retornoInversionAnios + " Años";
+
+      document.getElementById('comparativaGastoActual').innerText = "$" + estadoCotizacion.diagnostico.montoActual.toLocaleString('es-MX') + " MXN / " + estadoCotizacion.diagnostico.periodo.toLowerCase();
+      document.getElementById('comparativaGastoNuevo').innerText = "$" + estadoCotizacion.financiero.nuevoGastoBimestral.toLocaleString('es-MX') + " MXN / " + estadoCotizacion.diagnostico.periodo.toLowerCase();
+      
+      const factorPeriodo = estadoCotizacion.diagnostico.periodo === "Mensual" ? 12 : 6;
+      const gasto25SinPaneles = Math.round(estadoCotizacion.diagnostico.montoActual * factorPeriodo * 32);
+      document.getElementById('comparativaGasto25Anios').innerText = "$" + gasto25SinPaneles.toLocaleString('es-MX') + " MXN";
+      document.getElementById('comparativaAhorro25Anios').innerText = "$" + estadoCotizacion.financiero.ahorro25Anios.toLocaleString('es-MX') + " MXN";
+
+      document.getElementById('resumenInversor').innerText = estadoCotizacion.sistemaPropuesto.inversor;
+      document.getElementById('resumenAreaTecho').innerText = estadoCotizacion.sistemaPropuesto.areaTechoM2 + " m² de cubierta libre";
+      document.getElementById('resumenGeneracionAnual').innerText = estadoCotizacion.sistemaPropuesto.generacionAnualKwh.toLocaleString('es-MX') + " kWh / año";
+      
+      document.getElementById('resumenCo2Evitado').innerText = estadoCotizacion.ecologico.co2EvitadoTon + " Ton";
+      document.getElementById('resumenArboles').innerText = estadoCotizacion.ecologico.arbolesEquivalentes + " Árboles";
+
+      contenedor.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+      try {
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 65,
+            spread: 55,
+            origin: { y: 0.65 },
+            colors: ['#9ee939', '#84cc16', '#ffffff']
+          });
+        }
+      } catch (e) {
+        console.log("Confetti anim:", e);
+      }
+    }
+
+    /* ==========================================================================
+       6. GESTIÓN Y ESCÁNER DE ARCHIVOS DE RECIBO CFE
+       ========================================================================== */
+    const dropzone = document.getElementById('dropzoneRecibo');
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.add('dragover');
+      }, false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+      dropzone.addEventListener(eventName, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        dropzone.classList.remove('dragover');
+      }, false);
+    });
+
+    dropzone.addEventListener('drop', (e) => {
+      const dt = e.dataTransfer;
+      const file = dt.files[0];
+      if (file) {
+        procesarArchivoRecibo(file);
+      }
+    });
+
+    function procesarArchivoRecibo(file) {
+      if (!file) return;
+
+      const emptyState = document.getElementById('dropzoneEmptyState');
+      const scanningState = document.getElementById('dropzoneScanningState');
+      const filledState = document.getElementById('dropzoneFilledState');
+      const fileNameEl = document.getElementById('filePreviewName');
+      const fileSizeEl = document.getElementById('filePreviewSize');
+      const fileThumbEl = document.getElementById('filePreviewThumb');
+
+      // Mostrar estado de escaneo para dar feedback interactivo
+      emptyState.classList.add('d-none');
+      filledState.classList.add('d-none');
+      scanningState.classList.remove('d-none');
+
+      setTimeout(() => {
+        scanningState.classList.add('d-none');
+        filledState.classList.remove('d-none');
+
+        const sizeMb = (file.size / (1024 * 1024)).toFixed(2);
+        const sizeText = sizeMb > 1 ? sizeMb + " MB" : Math.round(file.size / 1024) + " KB";
+
+        fileNameEl.innerText = file.name;
+        fileSizeEl.innerText = sizeText + " • Recibo CFE analizado con éxito";
+
+        if (file.type.includes('pdf')) {
+          fileThumbEl.innerHTML = '<i class="fa-solid fa-file-pdf text-danger fs-2"></i>';
+        } else {
+          fileThumbEl.innerHTML = '<i class="fa-solid fa-file-image text-info fs-2"></i>';
+        }
+
+        estadoCotizacion.archivoRecibo = {
+          nombre: file.name,
+          tamano: sizeText,
+          tipo: file.type,
+          archivo: file
+        };
+
+        const badgeRecibo = document.getElementById('panelSalesReciboBadge');
+        if (badgeRecibo) {
+          badgeRecibo.className = "badge bg-success bg-opacity-25 text-success border border-success border-opacity-50";
+          badgeRecibo.innerHTML = '<i class="fa-solid fa-check me-1"></i> Adjunto (' + file.name.substring(0, 14) + '...)';
+        }
+
+        const estadoTexto = document.getElementById('estadoArchivoAdjuntoTexto');
+        if (estadoTexto) {
+          estadoTexto.innerHTML = '<i class="fa-solid fa-circle-check text-success me-1"></i> <strong>Recibo CFE:</strong> ' + file.name + ' (' + sizeText + '). Listo para enviar a WhatsApp.';
+        }
+
+        // ADAPTAR AUTOMÁTICAMENTE LAS TARIFAS
+        adaptarTarifasSegunRecibo(file);
+
+      }, 600);
+    }
+
+    function eliminarArchivoRecibo() {
+      document.getElementById('inputReciboFile').value = '';
+      document.getElementById('dropzoneEmptyState').classList.remove('d-none');
+      document.getElementById('dropzoneFilledState').classList.add('d-none');
+      document.getElementById('dropzoneScanningState').classList.add('d-none');
+      document.getElementById('reciboDetectedCard').classList.add('d-none');
+
+      estadoCotizacion.archivoRecibo = null;
+      estadoCotizacion.reciboAutoAdaptado = false;
+
+      const badgeRecibo = document.getElementById('panelSalesReciboBadge');
+      if (badgeRecibo) {
+        badgeRecibo.className = "badge bg-warning bg-opacity-25 text-warning border border-warning border-opacity-50";
+        badgeRecibo.innerHTML = '<i class="fa-solid fa-clock me-1"></i> Pendiente';
+      }
+
+      const estadoTexto = document.getElementById('estadoArchivoAdjuntoTexto');
+      if (estadoTexto) {
+        estadoTexto.innerText = "Recibo de luz pendiente de adjuntar. Adjúntalo para agilizar la visita técnica.";
+      }
+    }
+
+    /* ==========================================================================
+       7. GENERADOR PROFESIONAL DE PDF EJECUTIVO CON JSPDF + AUTOTABLE
+       ========================================================================== */
+    function generarYDescargarPDF(descargarDirectamente = true) {
+      actualizarCalculosEnVivo();
+
+      const { jsPDF } = window.jspdf;
+      if (!jsPDF) {
+        alert("La librería PDF se está preparando. Por favor intenta en un instante.");
+        return null;
+      }
+
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'letter'
+      });
+
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+
+      const colorNavy = [16, 20, 21];
+      const colorSolar = [132, 204, 22];
+      const colorDarkSlate = [30, 41, 59];
+
+      // Cabecera Corporativa
+      doc.setFillColor(...colorNavy);
+      doc.rect(0, 0, pageWidth, 28, 'F');
+
+      doc.setFillColor(...colorSolar);
+      doc.rect(0, 28, pageWidth, 2, 'F');
+
+      doc.setTextColor(255, 255, 255);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(18);
+      doc.text("SOLARSPHERE", 14, 13);
+
+      doc.setFontSize(8);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(158, 233, 57);
+      doc.text("ENERGÍA SOLAR INTELIGENTE • INTERCONEXIÓN CFE MÉXICO", 14, 18);
+      doc.setTextColor(220, 220, 220);
+      doc.text("Atención & Proyectos WhatsApp: " + NUMERO_WHATSAPP_LABEL, 14, 23);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(10);
+      doc.text("PROPUESTA EJECUTIVA", pageWidth - 14, 11, { align: 'right' });
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(158, 233, 57);
+      doc.text("Folio: " + estadoCotizacion.folio, pageWidth - 14, 16, { align: 'right' });
+      doc.setTextColor(220, 220, 220);
+      doc.text("Fecha: " + estadoCotizacion.fecha, pageWidth - 14, 21, { align: 'right' });
+
+      let cursorY = 36;
+
+      doc.setTextColor(...colorDarkSlate);
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(13);
+      doc.text("ESTUDIO TÉCNICO Y FINANCIERO DE SISTEMA SOLAR FOTOVOLTAICO", 14, cursorY);
+      cursorY += 5;
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(8);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Dimensionamiento preliminar formulado bajo norma oficial mexicana NOM-001-SEDE y esquema de Net Metering CFE.", 14, cursorY);
+      cursorY += 6;
+
+      // Tabla 1: Cliente & CFE
+      doc.autoTable({
+        startY: cursorY,
+        theme: 'grid',
+        headStyles: { fillColor: colorDarkSlate, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8.5, cellPadding: 2.5 },
+        columnStyles: {
+          0: { fontStyle: 'bold', width: 45, fillColor: [248, 250, 252] },
+          1: { width: 48 },
+          2: { fontStyle: 'bold', width: 45, fillColor: [248, 250, 252] },
+          3: { width: 50 }
+        },
+        head: [['DATOS DEL CLIENTE', 'DETALLE', 'DIAGNÓSTICO ENERGÉTICO CFE', 'DETALLE']],
+        body: [
+          ['Nombre / Empresa:', estadoCotizacion.cliente.nombre || 'Cliente SolarSphere', 'Tarifa CFE Actual:', estadoCotizacion.diagnostico.tarifa],
+          ['Teléfono / WhatsApp:', estadoCotizacion.cliente.telefono || '960 107 6133', 'Periodo de Facturación:', estadoCotizacion.diagnostico.periodo],
+          ['Correo Electrónico:', estadoCotizacion.cliente.email || 'No especificado', 'Facturación CFE Actual:', '$' + estadoCotizacion.diagnostico.montoActual.toLocaleString('es-MX') + ' MXN'],
+          ['Estado / Región:', estadoCotizacion.diagnostico.estado + ' (' + estadoCotizacion.diagnostico.horasSolPico + ' HSP)', 'Consumo Estimado Periodo:', estadoCotizacion.diagnostico.consumoKwh + ' kWh'],
+          ['Tipo de Inmueble:', estadoCotizacion.cliente.inmueble, 'Tipo de Techo / Cubierta:', estadoCotizacion.cliente.techo]
+        ]
+      });
+
+      cursorY = doc.lastAutoTable.finalY + 6;
+
+      // Tabla 2: Especificaciones del Sistema
+      doc.autoTable({
+        startY: cursorY,
+        theme: 'grid',
+        headStyles: { fillColor: [41, 70, 0], textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8.5, cellPadding: 2.5 },
+        columnStyles: {
+          0: { fontStyle: 'bold', width: 65, fillColor: [248, 250, 252] },
+          1: { width: 75 },
+          2: { width: 48, halign: 'center', fontStyle: 'bold', textColor: [20, 83, 45] }
+        },
+        head: [['COMPONENTE O PARÁMETRO', 'ESPECIFICACIÓN TÉCNICA OFICIAL', 'ESTADO / GARANTÍA']],
+        body: [
+          ['Capacidad Total del Sistema:', estadoCotizacion.sistemaPropuesto.potenciaKwp + ' kWp Instalados en CD', '100% Cobertura CFE'],
+          ['Módulos Solares Fotovoltaicos:', estadoCotizacion.sistemaPropuesto.numeroPaneles + ' Módulos Tier-1 de 550W Bifacial', '25 Años de Garantía'],
+          ['Inversor de Corriente:', estadoCotizacion.sistemaPropuesto.inversor, '10 Años de Garantía'],
+          ['Monitoreo Inteligente:', 'Plataforma Móvil WiFi (App iOS y Android en vivo)', 'Acceso 24/7 sin costo'],
+          ['Estructura y Herrajes:', 'Aluminio Anodizado AL-6005-T5 y Acero Inoxidable', 'Resistencia a Vientos 160 km/h'],
+          ['Superficie de Techo Requerida:', estadoCotizacion.sistemaPropuesto.areaTechoM2 + ' m² de cubierta libre de sombras', 'Inspección en sitio'],
+          ['Generación Eléctrica Anual:', estadoCotizacion.sistemaPropuesto.generacionAnualKwh.toLocaleString('es-MX') + ' kWh / año aproximados', 'Rendimiento 80% PR']
+        ]
+      });
+
+      cursorY = doc.lastAutoTable.finalY + 6;
+
+      // Tabla 3: Análisis Financiero
+      doc.autoTable({
+        startY: cursorY,
+        theme: 'grid',
+        headStyles: { fillColor: colorDarkSlate, textColor: [255, 255, 255], fontStyle: 'bold', fontSize: 9 },
+        bodyStyles: { fontSize: 8.5, cellPadding: 2.5 },
+        columnStyles: {
+          0: { fontStyle: 'bold', width: 65, fillColor: [248, 250, 252] },
+          1: { width: 65, fontStyle: 'bold' },
+          2: { width: 58, textColor: [71, 85, 105] }
+        },
+        head: [['INDICADOR ECONÓMICO', 'VALOR PROYECTADO', 'IMPACTO EN SU PATRIMONIO']],
+        body: [
+          ['Pago Promedio con CFE Actual:', '$' + estadoCotizacion.diagnostico.montoActual.toLocaleString('es-MX') + ' MXN', 'Gasto continuo a fondo perdido'],
+          ['Nuevo Pago Promedio Estimado CFE:', '$' + estadoCotizacion.financiero.nuevoGastoBimestral.toLocaleString('es-MX') + ' MXN', 'Solo tarifa mínima fija de red'],
+          ['Ahorro por Periodo Facturado:', '$' + estadoCotizacion.financiero.ahorroBimestral.toLocaleString('es-MX') + ' MXN (' + estadoCotizacion.financiero.porcentajeAhorro + '%)', 'Dinero ahorrado desde el día 1'],
+          ['Ahorro Financiero Anual:', '$' + estadoCotizacion.financiero.ahorroAnual.toLocaleString('es-MX') + ' MXN / año', 'Flujo de efectivo recuperado'],
+          ['Ahorro Acumulado a 25 Años:', '$' + estadoCotizacion.financiero.ahorro25Anios.toLocaleString('es-MX') + ' MXN', 'Calculado con inflación CFE 5.5%'],
+          ['Retorno de Inversión Estimado (ROI):', estadoCotizacion.financiero.retornoInversionAnios + ' Años', 'Posteriormente 22+ años de energía gratis']
+        ]
+      });
+
+      cursorY = doc.lastAutoTable.finalY + 6;
+
+      // Compromisos
+      doc.setFillColor(241, 245, 249);
+      doc.roundedRect(14, cursorY, pageWidth - 28, 26, 2, 2, 'F');
+      doc.setDrawColor(203, 213, 225);
+      doc.roundedRect(14, cursorY, pageWidth - 28, 26, 2, 2, 'D');
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8.5);
+      doc.setTextColor(...colorDarkSlate);
+      doc.text("ALCANCE DEL SERVICIO LLAVE EN MANO INCLUIDO POR SOLARSPHERE:", 18, cursorY + 5);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7.5);
+      doc.setTextColor(71, 85, 105);
+      doc.text("1. Suministro de paneles solares Tier-1, inversores inteligentes y protecciones eléctricas en CD y CA.", 18, cursorY + 10);
+      doc.text("2. Trámite integral de interconexión ante CFE: convenio de contraprestación y gestión del medidor bidireccional.", 18, cursorY + 14);
+      doc.text("3. Instalación profesional certificada, canalizaciones bajo norma NOM-001-SEDE y puesta en marcha.", 18, cursorY + 18);
+      doc.text("4. Mitigación Ecológica: Evita " + estadoCotizacion.ecologico.co2EvitadoTon + " Ton de CO2 al año (equivale a plantar " + estadoCotizacion.ecologico.arbolesEquivalentes + " árboles).", 18, cursorY + 22);
+
+      const footerY = pageHeight - 16;
+      doc.setDrawColor(203, 213, 225);
+      doc.line(14, footerY - 2, pageWidth - 14, footerY - 2);
+
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(8);
+      doc.setTextColor(...colorDarkSlate);
+      doc.text("SOLARSPHERE ENERGÍA SOLAR • ATENCIÓN & COTIZACIONES WHATSAPP: " + NUMERO_WHATSAPP_LABEL, 14, footerY + 3);
+
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(7);
+      doc.setTextColor(100, 116, 139);
+      doc.text("Propuesta válida por 30 días a partir de su emisión. Para formalizar su visita técnica, envíe este documento al WhatsApp " + NUMERO_WHATSAPP_LABEL, 14, footerY + 7);
+
+      const nombreClienteLimpio = (estadoCotizacion.cliente.nombre || 'Cliente').replace(/[^a-zA-Z0-9]/g, '_');
+      const nombreArchivoPDF = "Cotizacion_SolarSphere_" + nombreClienteLimpio + "_" + estadoCotizacion.folio + ".pdf";
+
+      if (descargarDirectamente) {
+        doc.save(nombreArchivoPDF);
+      }
+
+      return {
+        doc: doc,
+        nombreArchivo: nombreArchivoPDF
+      };
+    }
+
+    /* ==========================================================================
+       8. CONEXIÓN DIRECTA CON WHATSAPP (+52 960 107 6133)
+       ========================================================================== */
+    function enviarCotizacionWhatsApp() {
+      actualizarCalculosEnVivo();
+
+      const pdfResultado = generarYDescargarPDF(true);
+      const nombrePdf = pdfResultado ? pdfResultado.nombreArchivo : ("Cotizacion_SolarSphere_" + estadoCotizacion.folio + ".pdf");
+
+      document.getElementById('modalPdfNombreDescargado').innerText = nombrePdf;
+
+      const asuntoSelect = document.getElementById('asuntoConsulta');
+      const asuntoTexto = asuntoSelect ? asuntoSelect.value : "Agendar Visita Técnica Gratuita";
+      const mensajeAdicional = document.getElementById('mensajeAdicional') ? document.getElementById('mensajeAdicional').value.trim() : "";
+
+      let textoArchivoRecibo = "⚠️ Aún no he adjuntado mi archivo de recibo (te enviaré una foto por este chat).";
+      if (estadoCotizacion.archivoRecibo) {
+        textoArchivoRecibo = "📎 Adjunto mi recibo de luz CFE: *" + estadoCotizacion.archivoRecibo.nombre + "* (" + estadoCotizacion.archivoRecibo.tamano + ")";
+      }
+
+      const mensajeWhatsApp = 
+`☀️ *SOLICITUD DE COTIZACIÓN SOLAR - SOLARSPHERE* ☀️
+_Folio de Propuesta:_ *${estadoCotizacion.folio}*
+_Fecha de Emisión:_ ${estadoCotizacion.fecha}
+
+👤 *DATOS DEL CLIENTE:*
+• *Nombre / Empresa:* ${estadoCotizacion.cliente.nombre || 'Cliente SolarSphere'}
+• *Teléfono de Contacto:* ${estadoCotizacion.cliente.telefono || '960 107 6133'}
+• *Correo:* ${estadoCotizacion.cliente.email || 'No especificado'}
+• *Estado / Ubicación:* ${estadoCotizacion.diagnostico.estado} (${estadoCotizacion.diagnostico.horasSolPico} HSP)
+• *Tipo de Inmueble:* ${estadoCotizacion.cliente.inmueble}
+• *Tipo de Techo:* ${estadoCotizacion.cliente.techo}
+
+⚡ *DIAGNÓSTICO ENERGÉTICO CFE:*
+• *Tarifa CFE:* ${estadoCotizacion.diagnostico.tarifa}
+• *Facturación Actual:* $${estadoCotizacion.diagnostico.montoActual.toLocaleString('es-MX')} MXN / ${estadoCotizacion.diagnostico.periodo}
+• *Consumo Estimado:* ${estadoCotizacion.diagnostico.consumoKwh} kWh
+
+🔬 *SISTEMA FOTOVOLTAICO RECOMENDADO:*
+• *Capacidad Total:* *${estadoCotizacion.sistemaPropuesto.potenciaKwp} kWp*
+• *Número de Paneles:* *${estadoCotizacion.sistemaPropuesto.numeroPaneles} Módulos Tier-1 de 550W*
+• *Inversor:* ${estadoCotizacion.sistemaPropuesto.inversor}
+• *Área de Techo Requerida:* ${estadoCotizacion.sistemaPropuesto.areaTechoM2} m²
+• *Generación Proyectada:* ${estadoCotizacion.sistemaPropuesto.generacionAnualKwh.toLocaleString('es-MX')} kWh / año
+
+💰 *ANÁLISIS DE AHORRO FINANCIERO:*
+• *Nuevo Pago con CFE:* ~$${estadoCotizacion.financiero.nuevoGastoBimestral} MXN
+• *Ahorro por Periodo:* *$${estadoCotizacion.financiero.ahorroBimestral.toLocaleString('es-MX')} MXN* (*${estadoCotizacion.financiero.porcentajeAhorro}%*)
+• *Ahorro Estimado a 25 Años:* *$${estadoCotizacion.financiero.ahorro25Anios.toLocaleString('es-MX')} MXN*
+• *Retorno de Inversión (ROI):* ~${estadoCotizacion.financiero.retornoInversionAnios} Años
+
+🌱 *IMPACTO AMBIENTAL:*
+• *CO₂ Mitigado:* ${estadoCotizacion.ecologico.co2EvitadoTon} Toneladas / año
+• *Equivalente a:* ${estadoCotizacion.ecologico.arbolesEquivalentes} árboles plantados
+
+📂 *DOCUMENTOS Y ARCHIVOS DE LA COTIZACIÓN:*
+1. 📄 *Cotización PDF formal generada y descargada:* \`${nombrePdf}\`
+2. ${textoArchivoRecibo}
+
+📌 *MOTIVO DE CONTACTO:* ${asuntoTexto}
+${mensajeAdicional ? `💬 *Nota adicional del cliente:* "${mensajeAdicional}"\n` : ''}
+Hola, equipo de SolarSphere. He calculado mi propuesta en la página web y tengo el PDF descargado en mi dispositivo. Por favor revisen mi diagnóstico para agendar mi visita técnica y formalizar mi cotización. ¡Muchas gracias!`;
+
+      const urlWhatsApp = "https://wa.me/" + NUMERO_WHATSAPP_OFICIAL + "?text=" + encodeURIComponent(mensajeWhatsApp);
+
+      window.open(urlWhatsApp, '_blank');
+
+      const modalElement = document.getElementById('whatsappSentModal');
+      if (modalElement && window.bootstrap && window.bootstrap.Modal) {
+        const modalInstance = new bootstrap.Modal(modalElement);
+        modalInstance.show();
+      }
+    }
+
+    function abrirPanelVentasWhatsApp() {
+      actualizarCalculosEnVivo();
+      const offcanvasElement = document.getElementById('salesOffcanvas');
+      if (offcanvasElement && window.bootstrap && window.bootstrap.Offcanvas) {
+        const offcanvasInstance = bootstrap.Offcanvas.getOrCreateInstance(offcanvasElement);
+        offcanvasInstance.show();
+      }
+    }
+
+    /* ==========================================================================
+       9. INICIALIZACIÓN AL CARGAR LA PÁGINA
+       ========================================================================== */
+    document.addEventListener('DOMContentLoaded', () => {
+      // 1. Inicializar comportamiento auto-clear en todos los inputs
+      inicializarAutoClearEnTextboxes();
+
+      // 2. Ejecutar cálculo inicial para sincronizar la UI
+      actualizarCalculosEnVivo();
+
+      // 3. Escuchar cambios en campos de entrada para actualización reactiva
+      const inputsParaMonitorear = ['clienteNombre', 'clienteTelefono', 'clienteEmail', 'tipoInmueble', 'tipoTecho'];
+      inputsParaMonitorear.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+          el.addEventListener('input', actualizarPanelVentasUI);
+        }
+      });
+    });
+  </script>
+
+  <!-- Bootstrap 5.3.3 Bundle con Popper.js -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+</body>
+</html>
